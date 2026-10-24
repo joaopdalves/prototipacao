@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acolhe+ | Onboarding Gamificado para ONGs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF6B35',
+                            orangeDark: '#D9531E',
+                            teal: '#2EC4B6',
+                            tealDark: '#1FA195',
+                            purple: '#7209B7',
+                            purpleDark: '#5B0695',
+                            yellow: '#FF9F1C',
+                            yellowDark: '#D8810A',
+                            red: '#E63946',
+                            redDark: '#C1272D',
+                            gray: '#E9ECEF',
+                            grayDark: '#CED4DA',
+                            darkText: '#2B2D42',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #F8F9FA;
+            color: #2B2D42;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Oculta barras de rolagem nativas sem impedir o scroll */
+        ::-webkit-scrollbar {
+            display: none;
+            width: 0px;
+            background: transparent;
+        }
+        * {
+            -ms-overflow-style: none;  /* IE e Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .btn-duo {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-radius: 16px;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .btn-duo-orange {
+            background-color: #FF6B35;
+            color: #FFFFFF;
+            box-shadow: 0 5px 0 #D9531E;
+        }
+        .btn-duo-orange:hover { filter: brightness(1.05); }
+        .btn-duo-orange:active { transform: translateY(4px); box-shadow: 0 1px 0 #D9531E; }
+
+        .btn-duo-teal {
+            background-color: #2EC4B6;
+            color: #FFFFFF;
+            box-shadow: 0 5px 0 #1FA195;
+        }
+        .btn-duo-teal:hover { filter: brightness(1.05); }
+        .btn-duo-teal:active { transform: translateY(4px); box-shadow: 0 1px 0 #1FA195; }
+
+        .btn-duo-yellow {
+            background-color: #FF9F1C;
+            color: #FFFFFF;
+            box-shadow: 0 5px 0 #D8810A;
+        }
+        .btn-duo-yellow:active { transform: translateY(4px); box-shadow: 0 1px 0 #D8810A; }
+
+        .btn-duo-purple {
+            background-color: #7209B7;
+            color: #FFFFFF;
+            box-shadow: 0 5px 0 #5B0695;
+        }
+        .btn-duo-purple:active { transform: translateY(4px); box-shadow: 0 1px 0 #5B0695; }
+
+        .btn-duo-white {
+            background-color: #FFFFFF;
+            color: #2B2D42;
+            border: 2px solid #E9ECEF;
+            box-shadow: 0 4px 0 #CED4DA;
+        }
+        .btn-duo-white:active { transform: translateY(3px); box-shadow: 0 1px 0 #CED4DA; }
+
+        .btn-duo-red {
+            background-color: #E63946;
+            color: #FFFFFF;
+            box-shadow: 0 5px 0 #C1272D;
+        }
+        .btn-duo-red:active { transform: translateY(4px); box-shadow: 0 1px 0 #C1272D; }
+
+        .btn-duo-disabled {
+            background-color: #E9ECEF !important;
+            color: #ADB5BD !important;
+            box-shadow: 0 5px 0 #CED4DA !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .node-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: relative;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .node-orange {
+            background-color: #FF6B35;
+            color: white;
+            box-shadow: 0 8px 0 #D9531E;
+        }
+        .node-orange:active { transform: translateY(6px); box-shadow: 0 2px 0 #D9531E; }
+
+        .node-locked {
+            background-color: #E9ECEF;
+            color: #ADB5BD;
+            box-shadow: 0 8px 0 #CED4DA;
+            cursor: not-allowed;
+        }
+
+        .node-completed {
+            background-color: #2EC4B6;
+            color: #FFFFFF;
+            box-shadow: 0 8px 0 #1FA195;
+        }
+
+        .fade-in { animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .duo-speech-bubble {
+            position: relative;
+            background: #FFFFFF;
+            border: 3px solid #E9ECEF;
+            border-radius: 20px;
+        }
+        .duo-speech-bubble:after, .duo-speech-bubble:before {
+            right: 100%; top: 50%; border: solid transparent; content: ""; height: 0; width: 0; position: absolute; pointer-events: none;
+        }
+        .duo-speech-bubble:after { border-color: rgba(255, 255, 255, 0); border-right-color: #ffffff; border-width: 10px; margin-top: -10px; }
+        .duo-speech-bubble:before { border-color: rgba(233, 236, 239, 0); border-right-color: #E9ECEF; border-width: 14px; margin-top: -14px; }
+        :focus-visible { outline: 3px solid #2EC4B6; outline-offset: 2px; border-radius: 12px; }
+        input, textarea { user-select: text; }
+        .chip { font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 999px; border: 2px solid #E2E8F0; background: #fff; color: #64748B; white-space: nowrap; }
+        .chip-active { background: #2B2D42; border-color: #2B2D42; color: #fff; }
+        .toggle { width: 46px; height: 26px; border-radius: 999px; background: #CBD5E1; position: relative; transition: background .2s; flex-shrink: 0; }
+        .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .2s; }
+        .toggle.on { background: #2EC4B6; }
+        .toggle.on::after { left: 23px; }
+        details > summary { list-style: none; cursor: pointer; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] .chev { transform: rotate(180deg); }
+        @media (prefers-reduced-motion: reduce) { .animate-pulse, .animate-bounce, .fade-in { animation: none !important; } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between antialiased pb-16">
+
+    <!-- Header Fixo Superior -->
+    <header class="bg-white border-b-2 border-slate-200 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-3xl mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 shrink-0">
+                <div class="w-10 h-10 bg-brand-orange rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-[0_4px_0_#D9531E]">
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+                </div>
+                <span class="text-2xl font-extrabold tracking-wider text-slate-800 hidden sm:inline">Acolhe<span class="text-brand-orange">+</span></span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Busca presente em todas as páginas (RF-07) -->
+                <button id="headerSearchBtn" onclick="goSearch()" aria-label="Buscar" class="w-10 h-10 rounded-xl bg-slate-100 border-2 border-slate-200 text-slate-600 hover:bg-slate-200">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <!-- Perfil do integrante -->
+                <button id="headerProfileBtn" onclick="switchView('view-perfil')" aria-label="Meu perfil" class="w-10 h-10 rounded-xl bg-orange-100 border-2 border-orange-200 text-brand-orange font-black">
+                    JD
+                </button>
+                <!-- Seletor de Perfis (apenas para a demonstração) -->
+                <select id="roleSelector" onchange="changeRole(this.value)" aria-label="Trocar perfil da demonstração" class="bg-slate-100 border-2 border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-2 py-2 outline-none cursor-pointer hover:bg-slate-200 transition max-w-[150px] sm:max-w-none">
+                    <option value="voluntario">Ver como integrante</option>
+                    <option value="padrinho">Ver como padrinho</option>
+                    <option value="coordenador">Ver como coordenador</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Progresso (Visível para Voluntário) -->
+    <div id="statsBar" class="bg-white border-b-2 border-slate-200 py-3 px-4 sticky top-[62px] z-30 shadow-sm">
+        <div class="max-w-3xl mx-auto flex items-center justify-between space-x-3">
+            <div class="flex items-center space-x-2 text-slate-700 font-black text-xs uppercase tracking-wider shrink-0">
+                <i class="fa-solid fa-bars-progress text-brand-orange text-base"></i>
+                <span>Progresso do Onboarding</span>
+            </div>
+
+            <div class="flex items-center space-x-3 flex-1 max-w-md">
+                <div class="w-full bg-slate-100 h-5 rounded-full overflow-hidden p-0.5 border-2 border-slate-200 shadow-inner">
+                    <div id="topProgressBar" class="bg-brand-orange h-full rounded-full transition-all duration-500 relative" style="width: 35%;">
+                        <div class="absolute inset-0 bg-white/20 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                <span class="text-sm text-brand-orange font-black min-w-[38px] text-right" id="progressPercent">35%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal Adaptado para Desktop e Mobile -->
+    <main class="max-w-3xl mx-auto w-full flex-1 px-4 py-6 mb-12 flex flex-col justify-start">
+
+        <!-- ======================================================== -->
+        <!-- TELAS DO VOLUNTÁRIO                                      -->
+        <!-- ======================================================== -->
+
+        <!-- V0: Login (RF-01 / US01) -->
+        <section id="view-login" class="fade-in space-y-5 hidden flex-1">
+            <div class="text-center pt-4">
+                <div class="w-20 h-20 bg-brand-orange rounded-3xl flex items-center justify-center text-white text-4xl mx-auto shadow-[0_6px_0_#D9531E]">
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+                </div>
+                <h1 class="text-3xl font-black text-slate-800 mt-4">Acolhe<span class="text-brand-orange">+</span></h1>
+                <p class="text-sm font-bold text-slate-500 mt-1">Sua chegada à ONG Esperança, tudo em um só lugar.</p>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-6 space-y-4 shadow-sm">
+                <div>
+                    <label for="loginEmail" class="text-xs font-black text-slate-600">E-mail</label>
+                    <input id="loginEmail" type="email" value="joao.domingues@email.com" class="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl p-3 text-sm font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                </div>
+                <div>
+                    <label for="loginSenha" class="text-xs font-black text-slate-600">Senha</label>
+                    <input id="loginSenha" type="password" value="acolhe123" class="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl p-3 text-sm font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                </div>
+
+                <p id="loginError" class="hidden text-xs font-extrabold text-red-800 bg-red-50 border-2 border-red-200 rounded-2xl p-3"></p>
+
+                <button id="btnLogin" onclick="doLogin()" class="btn-duo btn-duo-orange w-full py-4 text-base">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i> ENTRAR
+                </button>
+
+                <div class="flex justify-between text-xs font-extrabold">
+                    <button onclick="showModal('Recuperar senha', 'Enviamos um link para joao.domingues@email.com. Ele vale por 48 horas e só pode ser usado uma vez.')" class="text-brand-teal hover:underline">Esqueci minha senha</button>
+                    <button onclick="showModal('Primeiro acesso', 'Use o link do convite que a coordenação enviou ao seu e-mail para criar sua senha (mínimo de 8 caracteres, com letras e números). O convite vale por 48 horas.')" class="text-slate-500 hover:underline">Recebi um convite</button>
+                </div>
+            </div>
+
+            <p class="text-[11px] font-bold text-slate-400 text-center">Demonstração: a senha correta é <strong>acolhe123</strong>. Digite outra senha 5 vezes para ver o bloqueio.</p>
+        </section>
+
+        <!-- V1: Termos obrigatórios (RF-08) -->
+        <section id="view-terms" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-orange-50 border-2 border-orange-200 rounded-3xl p-6 text-center">
+                <div class="w-16 h-16 bg-brand-orange text-white rounded-2xl flex items-center justify-center text-3xl font-black mx-auto mb-3 shadow-[0_4px_0_#D9531E]">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <h2 class="text-2xl font-black text-orange-950 leading-tight">Bem-vindo à ONG Esperança!</h2>
+                <p class="text-orange-900 text-sm font-semibold mt-1">Antes de começar, leia e aceite os termos da ONG. Sua trilha é liberada logo depois.</p>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-black text-slate-800">Termos obrigatórios</h3>
+                    <span id="termsCounter" class="text-xs font-black text-slate-500">0 de 4 aceitos</span>
+                </div>
+
+                <div class="border-2 border-slate-200 rounded-2xl p-4">
+                <details>
+                    <summary class="flex items-center justify-between gap-3">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-scale-balanced text-brand-teal text-lg"></i><span><span class="block text-sm font-extrabold text-slate-800">Termo de adesão ao serviço voluntário</span><span class="block text-[11px] font-bold text-slate-400">Lei nº 9.608/1998 • versão 1.0 • toque para ler</span></span></span>
+                        <i class="fa-solid fa-chevron-down chev text-slate-400 transition-transform"></i>
+                    </summary>
+                    <div class="text-xs font-semibold text-slate-600 mt-3 pt-3 border-t border-slate-100 space-y-1 leading-relaxed">
+                        <p><strong>Entidade:</strong> ONG Esperança. <strong>Voluntário:</strong> João Domingues.</p>
+                        <p><strong>Objeto:</strong> apoio no reforço escolar, sem vínculo empregatício e sem remuneração.</p>
+                        <p><strong>Condições:</strong> 4 horas por semana, às terças e quintas, das 14h às 16h.</p>
+                    </div>
+                </details>
+                    <label class="flex items-center gap-3 mt-3 cursor-pointer"><input type="checkbox" class="term-check w-6 h-6 accent-brand-orange" onchange="toggleTermsBtn()"><span class="text-xs font-extrabold text-slate-700">Li e aceito o termo de adesão</span></label>
+                </div>
+
+                <div class="border-2 border-slate-200 rounded-2xl p-4">
+                <details>
+                    <summary class="flex items-center justify-between gap-3">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-handshake text-brand-teal text-lg"></i><span><span class="block text-sm font-extrabold text-slate-800">Código de conduta</span><span class="block text-[11px] font-bold text-slate-400">versão 1.0</span></span></span>
+                        <i class="fa-solid fa-chevron-down chev text-slate-400 transition-transform"></i>
+                    </summary>
+                    <div class="text-xs font-semibold text-slate-600 mt-3 pt-3 border-t border-slate-100 space-y-1 leading-relaxed">
+                        <p>Pontualidade com a escala, respeito com alunos e equipe e uso de imagem somente com autorização da coordenação.</p>
+                    </div>
+                </details>
+                    <label class="flex items-center gap-3 mt-3 cursor-pointer"><input type="checkbox" class="term-check w-6 h-6 accent-brand-orange" onchange="toggleTermsBtn()"><span class="text-xs font-extrabold text-slate-700">Li e aceito o código de conduta</span></label>
+                </div>
+
+                <div class="border-2 border-slate-200 rounded-2xl p-4">
+                <details>
+                    <summary class="flex items-center justify-between gap-3">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-child-reaching text-brand-teal text-lg"></i><span><span class="block text-sm font-extrabold text-slate-800">Compromisso de proteção à criança e ao adolescente</span><span class="block text-[11px] font-bold text-slate-400">ECA – Lei nº 8.069/1990 • versão 1.0</span></span></span>
+                        <i class="fa-solid fa-chevron-down chev text-slate-400 transition-transform"></i>
+                    </summary>
+                    <div class="text-xs font-semibold text-slate-600 mt-3 pt-3 border-t border-slate-100 space-y-1 leading-relaxed">
+                        <p>Nunca ficar a sós com um aluno em local fechado, não compartilhar contatos pessoais com menores e comunicar à coordenação qualquer suspeita de violência.</p>
+                    </div>
+                </details>
+                    <label class="flex items-center gap-3 mt-3 cursor-pointer"><input type="checkbox" class="term-check w-6 h-6 accent-brand-orange" onchange="toggleTermsBtn()"><span class="text-xs font-extrabold text-slate-700">Li e aceito o compromisso de proteção</span></label>
+                </div>
+
+                <!-- Consentimento LGPD específico e destacado (RNFR-08.5) -->
+                <div class="border-2 border-brand-teal bg-teal-50 rounded-2xl p-4 space-y-2">
+                    <p class="text-sm font-extrabold text-teal-950"><i class="fa-solid fa-shield-halved mr-1"></i> Consentimento para uso dos seus dados (LGPD)</p>
+                    <p class="text-xs font-semibold text-teal-900 leading-relaxed">Usamos seu nome, e-mail e telefone apenas para organizar sua integração. Você pode pedir a exclusão dos dados a qualquer momento.</p>
+                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" class="term-check w-6 h-6 accent-brand-orange" onchange="toggleTermsBtn()"><span class="text-xs font-extrabold text-teal-950">Autorizo o uso dos meus dados para esse fim</span></label>
+                </div>
+
+                <button id="btnAcceptTerms" onclick="acceptTerms()" disabled class="btn-duo btn-duo-orange btn-duo-disabled w-full py-4 text-base">
+                    <i class="fa-solid fa-check-circle mr-2 text-xl"></i> ACEITAR E LIBERAR TRILHA
+                </button>
+                <p class="text-[11px] font-bold text-slate-400 text-center">O aceite fica registrado com data, hora, endereço IP e versão de cada termo.</p>
+            </div>
+        </section>
+
+        <!-- V2: Trilha Gamificada -->
+        <section id="view-trail" class="fade-in space-y-6 flex-1">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16 bg-brand-orange rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-[0_5px_0_#D9531E] shrink-0">
+                    <i class="fa-solid fa-face-smile-beam"></i>
+                </div>
+                <div class="duo-speech-bubble p-4 flex-1">
+                    <p class="text-xs font-extrabold text-slate-700">
+                        Olá, <span id="volunteerNameHeader" class="text-brand-orange font-black">João Domingues</span>! Clique no nó em destaque para continuar! <i class="fa-solid fa-rocket text-brand-orange ml-1"></i>
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-brand-teal text-white p-5 rounded-3xl shadow-[0_6px_0_#1FA195] relative overflow-hidden">
+                <div class="flex justify-between items-center relative z-10">
+                    <div>
+                        <span class="text-xs font-black uppercase tracking-widest text-teal-100">Trilha Ativa</span>
+                        <h2 id="currentVolunteerTrailTitle" class="text-xl font-black">Reforço Escolar</h2>
+                        <p class="text-xs text-teal-100 font-bold mt-1">3 etapas • cerca de 15 min no total</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aviso de tarefa atrasada (RNFR-04.2) -->
+            <button id="overdueBanner" onclick="switchView('view-checklist')" class="w-full text-left bg-red-50 border-2 border-red-200 rounded-2xl p-3 flex items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-brand-red text-xl"></i>
+                <span class="flex-1 text-xs font-extrabold text-red-900">Você tem 1 tarefa atrasada: <span class="underline">Enviar cópia do RG</span></span>
+                <i class="fa-solid fa-chevron-right text-red-400"></i>
+            </button>
+
+            <!-- Convite para instalar no celular (RNFS-03 / PWA) -->
+            <div id="pwaBanner" class="bg-white border-2 border-slate-200 rounded-2xl p-3 flex items-center gap-3">
+                <i class="fa-solid fa-mobile-screen-button text-brand-teal text-xl"></i>
+                <span class="flex-1 text-xs font-extrabold text-slate-700">Adicione o Acolhe+ à tela inicial do celular, sem baixar app.</span>
+                <button onclick="installPwa()" class="btn-duo btn-duo-teal py-1.5 px-3 text-[11px]">ADICIONAR</button>
+                <button onclick="document.getElementById('pwaBanner').classList.add('hidden')" aria-label="Fechar" class="text-slate-400 px-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Mapa Sinuoso S-Curve Estilo Duolingo -->
+            <div class="flex flex-col items-center space-y-8 py-6 relative">
+                <!-- Linha Guia Curvada S-curve via SVG -->
+                <svg class="absolute top-8 bottom-8 w-64 h-[calc(100%-4rem)] z-0 pointer-events-none" viewBox="0 0 200 320" preserveAspectRatio="none">
+                    <path d="M 100,20 C 180,60 180,100 100,140 C 20,180 20,220 100,260" fill="none" stroke="#E2E8F0" stroke-width="10" stroke-linecap="round" />
+                </svg>
+
+                <!-- Nó 1 (Centralizado-Direita) -->
+                <div class="z-10 flex flex-col items-center transform translate-x-4">
+                    <div onclick="openTrailStep(1)" class="node-circle node-completed transition-transform hover:scale-110">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <span class="text-xs font-extrabold text-slate-600 mt-2 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                        Conhecendo a ONG • 5 min
+                    </span>
+                </div>
+
+                <!-- Nó 2 (Sinuoso Esquerda) -->
+                <div class="z-10 flex flex-col items-center transform -translate-x-12">
+                    <div id="node2" onclick="openTrailStep(2)" class="node-circle node-orange animate-pulse hover:scale-110 transition-transform">
+                        <i id="node2Icon" class="fa-solid fa-book-open"></i>
+                    </div>
+                    <span id="node2Label" class="text-xs font-black text-brand-orange mt-2 bg-orange-100 px-3 py-1 rounded-full border border-orange-300 shadow-sm">
+                        Regras e conduta • 5 min
+                    </span>
+                </div>
+
+                <!-- Nó 3 (Sinuoso Direita) -->
+                <div class="z-10 flex flex-col items-center transform translate-x-12">
+                    <div id="node3" onclick="openTrailStep(3)" class="node-circle node-locked transition-transform">
+                        <i id="node3Icon" class="fa-solid fa-lock"></i>
+                    </div>
+                    <span id="node3Label" class="text-xs font-extrabold text-slate-400 mt-2 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                        Tarefas de chegada • 5 min
+                    </span>
+                </div>
+
+                <!-- Nó 4 (Padrinho - Centralizado) -->
+                <div class="z-10 flex flex-col items-center transform -translate-x-4">
+                    <div onclick="switchView('view-mentor')" class="node-circle bg-brand-purple text-white shadow-[0_8px_0_#5B0695] hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-user-ninja"></i>
+                    </div>
+                    <span class="text-xs font-extrabold text-purple-700 mt-2 bg-purple-50 px-3 py-1 rounded-full border border-purple-200 shadow-sm">
+                        Seu Padrinho
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- V3: Leitura de Conteúdo da Etapa -->
+        <section id="view-step-content" class="fade-in space-y-5 hidden flex-1">
+            <button onclick="switchView('view-trail')" class="btn-duo btn-duo-white py-2 px-4 text-xs">
+                <i class="fa-solid fa-arrow-left mr-2"></i> TRILHA
+            </button>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-6 space-y-4 shadow-sm">
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] font-black bg-orange-100 text-orange-900 px-3 py-1 rounded-full">Etapa 2 de 3</span>
+                    <span class="text-[11px] font-black bg-slate-100 text-slate-600 px-3 py-1 rounded-full">Regras, valores e conduta</span>
+                    <span id="stepContentVersion" class="text-[11px] font-black bg-teal-100 text-teal-800 px-3 py-1 rounded-full">Versão oficial v1</span>
+                </div>
+
+                <h2 id="stepContentTitle" class="text-2xl font-black text-slate-800">Código de Convivência da ONG</h2>
+
+                <!-- Responsável e data da última atualização (RNFR-02.2) -->
+                <div class="text-xs font-extrabold text-slate-400 flex flex-wrap gap-x-4 gap-y-1 border-b border-slate-100 pb-3">
+                    <span><i class="fa-solid fa-user-pen mr-1"></i> Responsável: Gustavo Mota</span>
+                    <span id="stepContentDate"><i class="fa-solid fa-clock mr-1"></i> Atualizado em 18/10/2026</span>
+                </div>
+
+                <p class="bg-teal-50 border-l-4 border-brand-teal p-3 rounded-r-xl text-teal-950 text-xs font-semibold">
+                    <i class="fa-solid fa-circle-info text-brand-teal mr-1"></i> <strong>Importante:</strong> respeite este código para a proteção dos alunos atendidos.
+                </p>
+
+                <div id="stepContentBody" class="space-y-3 text-sm text-slate-600 font-semibold leading-relaxed"></div>
+
+                <div class="pt-2">
+                    <button id="btnCompleteStepContent" onclick="completeStepContent()" class="btn-duo btn-duo-orange w-full py-4 text-base">
+                        <i class="fa-solid fa-check mr-2 text-xl"></i> MARCAR COMO LIDO
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- V4: Checklist de tarefas (RF-04) -->
+        <section id="view-checklist" class="fade-in space-y-5 hidden flex-1">
+            <div class="flex justify-between items-center">
+                <button onclick="switchView('view-trail')" class="btn-duo btn-duo-white py-2 px-4 text-xs">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> TRILHA
+                </button>
+                <span id="tasksCounter" class="text-xs font-black bg-orange-100 text-orange-900 px-3 py-1.5 rounded-full border border-orange-300">1 de 5 concluídas</span>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">Tarefas de chegada</h2>
+                    <p class="text-xs text-slate-500 font-bold">Prazos contados a partir do seu início, em 15/10/2026.</p>
+                </div>
+
+                <button id="reminderInfo" onclick="switchView('view-perfil')" class="w-full text-left text-[11px] font-extrabold text-slate-600 bg-slate-50 border-2 border-slate-200 rounded-2xl p-3 flex items-center gap-2">
+                    <i class="fa-solid fa-envelope text-brand-teal"></i>
+                    <span id="reminderInfoText">Lembretes por e-mail ativados: 2 dias antes e no dia do prazo.</span>
+                    <span class="ml-auto text-brand-teal">Alterar</span>
+                </button>
+
+                <div id="taskList" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- V5: Perfil Padrinho (Visão do Voluntário) -->
+        <section id="view-mentor" class="fade-in space-y-5 hidden flex-1">
+            <button onclick="switchView('view-trail')" class="btn-duo btn-duo-white py-2 px-4 text-xs">
+                <i class="fa-solid fa-arrow-left mr-2"></i> VOLTAR
+            </button>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-6 text-center space-y-4 shadow-sm relative overflow-hidden">
+                <div class="w-24 h-24 bg-purple-100 border-4 border-brand-purple rounded-full mx-auto flex items-center justify-center text-brand-purple text-4xl font-black shadow-inner">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+
+                <div>
+                    <span class="text-xs font-black uppercase tracking-widest bg-purple-100 text-purple-800 px-3 py-1 rounded-full">Seu Padrinho Designado</span>
+                    <h2 class="text-2xl font-black text-slate-800 mt-2">Matheus Luna</h2>
+                    <p class="text-xs text-slate-500 font-bold">Voluntário do reforço escolar há 2 anos</p>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 text-xs text-purple-900 font-semibold text-left space-y-1">
+                    <p class="font-extrabold"><i class="fa-solid fa-quote-left mr-1"></i> Recado do Matheus:</p>
+                    <p>"Oi João Domingues! Seja bem-vindo à equipe. Qualquer dúvida me envie uma mensagem por aqui!"</p>
+                </div>
+
+                <!-- Botões de Ação Direta -->
+                <div class="space-y-3 pt-2">
+                    <p class="text-[11px] font-bold text-slate-400"><i class="fa-solid fa-lock mr-1"></i> Matheus autorizou mostrar o WhatsApp dele para os apadrinhados.</p>
+                    <a href="https://wa.me/5515999999999?text=Ol%C3%A1%20Matheus%20Luna!%20Sou%20o%20novo%20volunt%C3%A1rio%20Jo%C3%A3o%20Domingues%20e%20tenho%20uma%20d%C3%BAvida%20sobre%20meu%20onboarding." target="_blank" class="btn-duo btn-duo-teal w-full py-3.5 text-xs">
+                        <i class="fa-brands fa-whatsapp text-xl mr-2"></i> CONVERSAR NO WHATSAPP
+                    </a>
+
+                    <a href="mailto:matheus.luna@email.com?subject=D%C3%BAvida%20do%20onboarding" class="btn-duo btn-duo-white w-full py-3.5 text-xs">
+                        <i class="fa-solid fa-envelope text-base mr-2"></i> ENVIAR E-MAIL
+                    </a>
+
+                    <button onclick="openAskModal()" class="btn-duo btn-duo-purple w-full py-3.5 text-xs">
+                        <i class="fa-solid fa-paper-plane mr-2 text-base"></i> ENVIAR DÚVIDA PELA PLATAFORMA
+                    </button>
+                </div>
+            </div>
+
+            <!-- Histórico de Conversa -->
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <h3 class="font-black text-sm text-slate-800">Mensagens & Respostas</h3>
+                    <span id="volunteerRepliesBadge" class="text-[10px] font-black bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full">Sincronizado</span>
+                </div>
+
+                <div id="volunteerChatFeed" class="space-y-3 text-left">
+                    <!-- Feed de mensagens dinâmico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- V6: Busca e perguntas frequentes (RF-07) -->
+        <section id="view-faq" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">Buscar e tirar dúvidas</h2>
+                    <p class="text-xs font-bold text-slate-400">A busca procura nos conteúdos da ONG e nas perguntas frequentes.</p>
+                </div>
+
+                <div class="relative">
+                    <label for="faqSearch" class="sr-only">Buscar</label>
+                    <input type="text" id="faqSearch" oninput="renderSearch()" placeholder="Ex.: crachá, horas, escala..." class="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-bold text-slate-700 outline-none focus:border-brand-teal transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-slate-400 text-lg"></i>
+                </div>
+
+                <div id="searchResults" class="space-y-4"></div>
+            </div>
+
+            <div id="askBox" class="bg-purple-50 border-2 border-purple-200 rounded-3xl p-5 flex items-center gap-3">
+                <i class="fa-solid fa-paper-plane text-brand-purple text-2xl"></i>
+                <div class="flex-1">
+                    <p class="text-sm font-black text-purple-950">Não encontrou a resposta?</p>
+                    <p class="text-xs font-bold text-purple-700">Envie sua dúvida. O padrinho ou a coordenação responde aqui mesmo.</p>
+                </div>
+                <button onclick="openAskModal()" class="btn-duo btn-duo-purple py-2 px-3 text-xs">ENVIAR</button>
+            </div>
+        </section>
+
+        <!-- V7: Central de conteúdos (RF-02) -->
+        <section id="view-conteudos" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">Central da ONG</h2>
+                    <p class="text-xs font-bold text-slate-400">Tudo o que você precisa saber, na versão oficial e atualizada.</p>
+                </div>
+                <div id="catChips" class="flex gap-2 overflow-x-auto pb-1"></div>
+                <div id="contentList" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- V8: Meu perfil (RF-01, RNFR-04.4, RNFS-05) -->
+        <section id="view-perfil" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-6 text-center space-y-2 shadow-sm">
+                <div class="w-20 h-20 bg-orange-100 border-4 border-brand-orange rounded-full mx-auto flex items-center justify-center text-brand-orange text-2xl font-black">JD</div>
+                <h2 class="text-2xl font-black text-slate-800">João Domingues</h2>
+                <p class="text-xs font-bold text-slate-500">Voluntário • Reforço escolar • Início em 15/10/2026</p>
+                <button onclick="showModal('Dados salvos', 'Seu telefone foi atualizado para (15) 99888-7766.')" class="btn-duo btn-duo-white py-2 px-4 text-xs mt-2"><i class="fa-solid fa-pen mr-1"></i> EDITAR MEUS DADOS</button>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <h3 class="font-black text-slate-800">Preferências</h3>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1"><p class="text-sm font-extrabold text-slate-700">Receber lembretes por e-mail</p><p class="text-[11px] font-bold text-slate-400">2 dias antes e no dia do prazo de cada tarefa</p></div>
+                    <button id="toggleReminders" onclick="toggleReminders()" role="switch" aria-checked="true" aria-label="Receber lembretes" class="toggle on"></button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1"><p class="text-sm font-extrabold text-slate-700">Mostrar meu telefone</p><p class="text-[11px] font-bold text-slate-400">Só a equipe da ONG vê</p></div>
+                    <button id="togglePhone" onclick="this.classList.toggle('on')" role="switch" aria-label="Mostrar telefone" class="toggle"></button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1"><p class="text-sm font-extrabold text-slate-700">Tamanho da letra</p><p class="text-[11px] font-bold text-slate-400">Acessibilidade</p></div>
+                    <div class="flex gap-1">
+                        <button onclick="setFont(14)" class="btn-duo btn-duo-white w-10 h-10 text-xs" aria-label="Letra menor">A-</button>
+                        <button onclick="setFont(16)" class="btn-duo btn-duo-white w-10 h-10 text-sm" aria-label="Letra normal">A</button>
+                        <button onclick="setFont(18)" class="btn-duo btn-duo-white w-10 h-10 text-base" aria-label="Letra maior">A+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-3 shadow-sm">
+                <h3 class="font-black text-slate-800">Documentos</h3>
+                <div id="acceptedTermsList" class="space-y-2"></div>
+                <button id="btnCertificate" onclick="downloadCertificate()" class="btn-duo btn-duo-disabled w-full py-3 text-xs" disabled>
+                    <i class="fa-solid fa-certificate mr-2"></i> CERTIFICADO (DISPONÍVEL AO CONCLUIR A TRILHA)
+                </button>
+            </div>
+
+            <button onclick="logout()" class="btn-duo btn-duo-white w-full py-3 text-xs text-red-700"><i class="fa-solid fa-right-from-bracket mr-2"></i> SAIR</button>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TELAS DO PADRINHO (MATHEUS LUNA)                        -->
+        <!-- ======================================================== -->
+
+        <!-- Padrinho 1: Painel do Padrinho (RF-06) -->
+        <section id="view-padrinho-dashboard" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-brand-purple text-white p-6 rounded-3xl shadow-[0_6px_0_#5B0695] space-y-2">
+                <h2 class="text-2xl font-black">Seus apadrinhados</h2>
+                <p class="text-xs text-purple-100 font-bold">Você acompanha 2 de no máximo 3 pessoas ao mesmo tempo.</p>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="border-2 border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-brand-orange text-white rounded-xl flex items-center justify-center font-black">JD</div>
+                            <div>
+                                <h3 class="font-black text-sm text-slate-800">João Domingues</h3>
+                                <p class="text-[11px] text-slate-400 font-bold">Reforço escolar • início em 15/10/2026</p>
+                            </div>
+                        </div>
+                        <span id="padrinhoProgressBadge" class="text-xs font-black text-brand-orange bg-orange-100 px-2.5 py-1 rounded-full">35% concluído</span>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 p-3 rounded-xl flex items-center justify-between gap-2">
+                        <div class="text-xs">
+                            <p class="font-black text-purple-950">Treinamento presencial com o padrinho</p>
+                            <p id="padrinhoValidateSub" class="text-[10px] text-purple-700 font-bold">Tarefa que exige sua validação</p>
+                        </div>
+                        <button id="btnValidatePadrinho" onclick="validateTaskPadrinho()" class="btn-duo btn-duo-purple py-2 px-3 text-[11px]">
+                            <i class="fa-solid fa-check mr-1"></i> VALIDAR
+                        </button>
+                    </div>
+
+                    <!-- Observações de acompanhamento (RNFR-06.4) -->
+                    <div class="space-y-2">
+                        <p class="text-xs font-black text-slate-700">Observações de acompanhamento</p>
+                        <div id="obsList" class="space-y-2"></div>
+                        <div class="flex gap-2">
+                            <label for="obsInput" class="sr-only">Nova observação</label>
+                            <input id="obsInput" type="text" placeholder="Ex.: chegou no horário e interagiu bem com a turma" class="flex-1 bg-slate-100 border-2 border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-700 outline-none focus:border-brand-purple">
+                            <button onclick="addObservation()" class="btn-duo btn-duo-purple py-2 px-3 text-xs">REGISTRAR</button>
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-400"><i class="fa-solid fa-lock mr-1"></i> Visível só para você e para a coordenação.</p>
+                    </div>
+                </div>
+
+                <div class="border-2 border-slate-200 rounded-2xl p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-brand-teal text-white rounded-xl flex items-center justify-center font-black">PG</div>
+                            <div>
+                                <h3 class="font-black text-sm text-slate-800">Paulo Guina</h3>
+                                <p class="text-[11px] text-slate-400 font-bold">Eventos • início em 20/10/2026</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black text-brand-teal bg-teal-100 px-2.5 py-1 rounded-full">20% concluído</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Padrinho 2: Caixa de Mensagens -->
+        <section id="view-padrinho-messages" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800">Dúvidas Recebidas</h2>
+                        <p class="text-xs font-bold text-slate-400">Respostas úteis podem virar perguntas frequentes.</p>
+                    </div>
+                    <span id="padrinhoUnreadBadge" class="bg-brand-red text-white text-xs font-black px-2.5 py-1 rounded-full">1 Nova</span>
+                </div>
+
+                <div id="padrinhoMessageFeed" class="space-y-4">
+                    <!-- Renderizado dinamicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TELAS DO COORDENADOR (GUSTAVO MOTA)                      -->
+        <!-- ======================================================== -->
+
+        <!-- Coordenador 1: Painel de acompanhamento (RF-05) -->
+        <section id="view-coordenador-dashboard" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-slate-800 text-white p-6 rounded-3xl shadow-[0_6px_0_#334155] flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-2xl font-black">Integrações em andamento</h2>
+                    <p class="text-xs text-slate-300 font-bold">ONG Esperança • atualizado agora</p>
+                </div>
+                <button onclick="openCadastroModal()" class="btn-duo btn-duo-orange py-2.5 px-3 text-xs shrink-0">
+                    <i class="fa-solid fa-user-plus mr-1"></i> CADASTRAR
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-4 text-center">
+                    <p id="kpiAtivos" class="text-3xl font-black text-slate-800">3</p>
+                    <p class="text-[11px] font-extrabold text-slate-500 mt-1">Em integração</p>
+                </div>
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-4 text-center">
+                    <p id="kpiAtrasadas" class="text-3xl font-black text-brand-red">2</p>
+                    <p class="text-[11px] font-extrabold text-slate-500 mt-1">Tarefas atrasadas</p>
+                </div>
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-4 text-center">
+                    <p class="text-3xl font-black text-brand-yellow">1</p>
+                    <p class="text-[11px] font-extrabold text-slate-500 mt-1">Sem acesso há 7+ dias</p>
+                </div>
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-4 text-center">
+                    <p class="text-3xl font-black text-brand-teal">4,6</p>
+                    <p class="text-[11px] font-extrabold text-slate-500 mt-1">Nota média da integração</p>
+                </div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <h3 class="font-black text-slate-800">Integrantes</h3>
+                    <div class="flex gap-2">
+                        <button onclick="triggerCSVExport()" class="btn-duo btn-duo-white py-1.5 px-3 text-[11px]"><i class="fa-solid fa-file-csv mr-1"></i> CSV</button>
+                        <button onclick="showModal('Relatório em PDF', 'O relatório de progresso dos integrantes foi gerado em PDF.')" class="btn-duo btn-duo-white py-1.5 px-3 text-[11px]"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                    </div>
+                </div>
+
+                <!-- Filtros por situação e função -->
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <button class="chip chip-active coord-filter" onclick="setCoordFilter('todos', this)">Todos</button>
+                    <button class="chip coord-filter" onclick="setCoordFilter('atraso', this)">Com atraso</button>
+                    <button class="chip coord-filter" onclick="setCoordFilter('inativo', this)">Sem acesso 7+ dias</button>
+                    <button class="chip coord-filter" onclick="setCoordFilter('Reforço escolar', this)">Reforço escolar</button>
+                    <button class="chip coord-filter" onclick="setCoordFilter('Apoio e eventos', this)">Apoio e eventos</button>
+                </div>
+
+                <div id="coordList" class="space-y-3"></div>
+            </div>
+
+            <!-- Avaliações agregadas e anônimas (RNFR-05.5) -->
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-3 shadow-sm">
+                <h3 class="font-black text-slate-800">Como foi a integração, segundo quem concluiu</h3>
+                <p class="text-xs font-bold text-slate-400">5 avaliações, sem identificação de quem respondeu.</p>
+                <div class="space-y-1.5 text-[11px] font-extrabold text-slate-600">
+                    <div class="flex items-center gap-2"><span class="w-10">5 ★</span><div class="flex-1 bg-slate-100 h-3 rounded-full"><div class="bg-brand-teal h-3 rounded-full" style="width:60%"></div></div><span>3</span></div>
+                    <div class="flex items-center gap-2"><span class="w-10">4 ★</span><div class="flex-1 bg-slate-100 h-3 rounded-full"><div class="bg-brand-teal h-3 rounded-full" style="width:40%"></div></div><span>2</span></div>
+                    <div class="flex items-center gap-2"><span class="w-10">1–3 ★</span><div class="flex-1 bg-slate-100 h-3 rounded-full"></div><span>0</span></div>
+                </div>
+                <p class="text-xs font-semibold text-slate-600 bg-slate-50 rounded-xl p-3">“Gostei de ter tudo num lugar só. Poderia ter um vídeo da sala de aula.”</p>
+            </div>
+        </section>
+
+        <!-- Coordenador 2: Gestão de Trilhas & Grupos de Colaboradores -->
+        <section id="view-coordenador-trilhas" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800">Trilhas de Integração</h2>
+                        <p class="text-xs font-bold text-slate-400">Uma trilha por função, com até 10 etapas.</p>
+                    </div>
+                    <button onclick="openTrilhaModal()" class="btn-duo btn-duo-teal py-2 px-3 text-xs">
+                        <i class="fa-solid fa-plus mr-1"></i> CRIAR TRILHA
+                    </button>
+                </div>
+
+                <div id="trilhasList" class="space-y-3">
+                    <!-- Cards de trilhas inseridos dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Seção de Grupos de Colaboradores e Organização -->
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800">Funções e integrantes</h2>
+                        <p class="text-xs font-bold text-slate-400">Cada função recebe a sua trilha. Mova integrantes quando mudarem de função.</p>
+                    </div>
+                    <button onclick="openGroupModal()" class="btn-duo btn-duo-purple py-2 px-3 text-xs">
+                        <i class="fa-solid fa-users-gear mr-1"></i> NOVA FUNÇÃO
+                    </button>
+                </div>
+
+                <div id="groupsList" class="space-y-4">
+                    <!-- Grupos e integrantes renderizados dinamicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Coordenador 3: Gestão de conteúdos e perguntas frequentes (RF-02 / RF-07) -->
+        <section id="view-coordenador-conteudos" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="flex justify-between items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800">Central de conteúdos</h2>
+                        <p class="text-xs font-bold text-slate-400">Cada conteúdo tem uma única versão oficial. As anteriores ficam no histórico.</p>
+                    </div>
+                    <button onclick="openNovoConteudo()" class="btn-duo btn-duo-teal py-2 px-3 text-xs shrink-0"><i class="fa-solid fa-plus mr-1"></i> NOVO</button>
+                </div>
+                <div id="coordContentList" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div class="flex justify-between items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800">Perguntas frequentes</h2>
+                        <p class="text-xs font-bold text-slate-400">Inclua as dúvidas que se repetem a cada turma.</p>
+                    </div>
+                    <button onclick="openNovaFaq()" class="btn-duo btn-duo-purple py-2 px-3 text-xs shrink-0"><i class="fa-solid fa-plus mr-1"></i> NOVA</button>
+                </div>
+                <div id="coordFaqList" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- Coordenador 4: Termos e aceites (RF-08) -->
+        <section id="view-coordenador-termos" class="fade-in space-y-5 hidden flex-1">
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-4 shadow-sm">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">Termos da ONG</h2>
+                    <p class="text-xs font-bold text-slate-400">Publicar uma nova versão pede um novo aceite de todos.</p>
+                </div>
+                <div id="coordTermsList" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white border-2 border-slate-200 rounded-3xl p-5 space-y-3 shadow-sm">
+                <h3 class="font-black text-slate-800">Registro de aceites</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[11px] font-bold text-slate-600">
+                        <thead><tr class="text-left text-slate-400 border-b border-slate-200"><th class="py-2 pr-3">Integrante</th><th class="py-2 pr-3">Data e hora</th><th class="py-2 pr-3">IP</th><th class="py-2 pr-3">Versão</th><th class="py-2"></th></tr></thead>
+                        <tbody id="aceitesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <p class="text-center text-[11px] font-bold text-slate-400 mb-20">
+        <button onclick="showPrivacy()" class="hover:underline">Política de privacidade (LGPD)</button>
+    </p>
+
+    <!-- Modal para Mover Colaborador de Grupo -->
+    <div id="modalMoveCollabOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div class="w-12 h-12 bg-purple-100 text-brand-purple rounded-2xl flex items-center justify-center text-2xl font-black mx-auto">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 text-center">Organizar Colaborador</h3>
+            <p id="moveCollabNameText" class="text-xs font-bold text-slate-500 text-center">Selecione o novo grupo para o voluntário.</p>
+
+            <div>
+                <label class="text-[11px] font-black text-slate-600 uppercase">Novo Grupo</label>
+                <select id="selectGroupForCollab" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-purple mt-1">
+                    <!-- Opções dinâmicas -->
+                </select>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeMoveCollabModal()" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveCollabGroupMove()" class="btn-duo btn-duo-purple w-1/2 py-3 text-xs">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Criar / Editar Trilha -->
+    <div id="modalTrilhaOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div class="w-12 h-12 bg-teal-100 text-brand-teal rounded-2xl flex items-center justify-center text-2xl font-black mx-auto">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <h3 id="modalTrilhaTitle" class="text-xl font-black text-slate-800 text-center">Criar Nova Trilha</h3>
+
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="text-[11px] font-black text-slate-600 uppercase">Nome da Trilha</label>
+                    <input type="text" id="trilhaNomeInput" placeholder="Ex: Voluntário da Cozinha" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-black text-slate-600 uppercase">Função</label>
+                    <select id="trilhaGrupoSelect" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                        <!-- Opções preenchidas dinamicamente -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] font-black text-slate-600 uppercase">Etapas</label>
+                        <input type="number" id="trilhaEtapasInput" value="3" min="1" max="10" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-black text-slate-600 uppercase">Tempo (Min)</label>
+                        <input type="number" id="trilhaTempoInput" value="20" min="5" step="5" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-black text-slate-600 uppercase">Descrição da Trilha</label>
+                    <textarea id="trilhaDescInput" rows="2" placeholder="Descreva brevemente o objetivo da trilha..." class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1 resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeTrilhaModal()" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveTrilha()" class="btn-duo btn-duo-teal w-1/2 py-3 text-xs">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Conteúdo Personalizado da Etapa (Coordenador) -->
+    <div id="modalEditStepContentOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div class="w-12 h-12 bg-orange-100 text-brand-orange rounded-2xl flex items-center justify-center text-2xl font-black mx-auto">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 text-center">Editar conteúdo da etapa</h3>
+            <p class="text-xs font-bold text-slate-500 text-center">Ao salvar, a versão atual vai para o histórico e esta passa a ser a oficial.</p>
+
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="text-[11px] font-black text-slate-600 uppercase">Título do Conteúdo</label>
+                    <input type="text" id="editStepTitleInput" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1">
+                </div>
+                <div>
+                    <label class="text-[11px] font-black text-slate-600 uppercase">Texto Orientativo</label>
+                    <textarea id="editStepTextInput" rows="4" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1 resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeEditStepModal()" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveStepContent()" class="btn-duo btn-duo-orange w-1/2 py-3 text-xs">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Personalizado de Confirmação de Exclusão (Trilha e Grupo) -->
+    <div id="modalConfirmDeleteOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+            <div class="w-16 h-16 bg-red-100 text-brand-red rounded-2xl flex items-center justify-center text-3xl mx-auto font-black">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="deleteConfirmTitle" class="text-xl font-black text-slate-800">Excluir Item?</h3>
+            <p id="deleteConfirmText" class="text-xs font-bold text-slate-600 leading-relaxed">Tem certeza que deseja excluir este item permanentemente?</p>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeConfirmDeleteModal()" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="executeDeleteAction()" class="btn-duo btn-duo-red w-1/2 py-3 text-xs">EXCLUIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Criar Novo Grupo -->
+    <div id="modalGroupOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div class="w-12 h-12 bg-purple-100 text-brand-purple rounded-2xl flex items-center justify-center text-2xl font-black mx-auto">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 text-center">Nova função</h3>
+
+            <div>
+                <label class="text-[11px] font-black text-slate-600 uppercase">Nome da função</label>
+                <input type="text" id="groupNameInput" placeholder="Ex.: Comunicação e mídias" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-purple mt-1">
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeGroupModal()" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveGroup()" class="btn-duo btn-duo-purple w-1/2 py-3 text-xs">CRIAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Parabéns + avaliação final (RF-05 / RNFR-03.5) -->
+    <div id="modalCongratsOverlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-brand-orange rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+            <div class="w-20 h-20 bg-orange-100 text-brand-orange rounded-3xl flex items-center justify-center text-4xl mx-auto font-black shadow-[0_5px_0_#D9531E]">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 class="text-2xl font-black text-slate-800">Parabéns, João! 🎉</h3>
+            <p class="text-xs font-bold text-slate-600 leading-relaxed">Você concluiu todas as etapas da sua trilha. Antes de baixar o certificado, conte como foi.</p>
+
+            <div>
+                <p class="text-xs font-black text-slate-700 mb-2">Que nota você dá para a sua integração?</p>
+                <div id="ratingStars" class="flex justify-center gap-2 text-3xl text-slate-300">
+                    <button onclick="setRating(1)" aria-label="Nota 1"><i class="fa-solid fa-star"></i></button>
+                    <button onclick="setRating(2)" aria-label="Nota 2"><i class="fa-solid fa-star"></i></button>
+                    <button onclick="setRating(3)" aria-label="Nota 3"><i class="fa-solid fa-star"></i></button>
+                    <button onclick="setRating(4)" aria-label="Nota 4"><i class="fa-solid fa-star"></i></button>
+                    <button onclick="setRating(5)" aria-label="Nota 5"><i class="fa-solid fa-star"></i></button>
+                </div>
+            </div>
+            <label for="ratingComment" class="sr-only">Comentário</label>
+            <textarea id="ratingComment" rows="2" placeholder="Comentário (opcional)" class="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl p-3 text-xs font-bold text-slate-700 outline-none focus:border-brand-orange resize-none"></textarea>
+            <p class="text-[10px] font-bold text-slate-400">A coordenação vê as avaliações sem saber quem respondeu.</p>
+
+            <div class="space-y-2">
+                <button id="btnSendRating" onclick="sendRating()" class="btn-duo btn-duo-orange btn-duo-disabled w-full py-3.5 text-xs" disabled>
+                    <i class="fa-solid fa-file-pdf mr-2 text-base"></i> ENVIAR E BAIXAR CERTIFICADO
+                </button>
+                <button onclick="closeCongratsModal()" class="btn-duo btn-duo-white w-full py-3 text-xs">AVALIAR DEPOIS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: cadastrar integrante (RF-01 / RF-03 / RF-06) -->
+    <div id="modalCadastroOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-black text-slate-800 text-center">Cadastrar integrante</h3>
+            <p class="text-xs font-bold text-slate-500 text-center">A pessoa recebe por e-mail um convite para criar a senha.</p>
+            <div class="space-y-2 text-left">
+                <label class="block text-[11px] font-black text-slate-600">Nome<input id="cadNome" type="text" value="Ana Clara Souza" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1"></label>
+                <label class="block text-[11px] font-black text-slate-600">E-mail<input id="cadEmail" type="email" value="ana.souza@email.com" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1"></label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="block text-[11px] font-black text-slate-600">Vínculo<select id="cadVinculo" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"><option>Voluntário</option><option>Contratado</option><option>Estagiário</option><option>Jovem aprendiz</option></select></label>
+                    <label class="block text-[11px] font-black text-slate-600">Início<input id="cadInicio" type="date" value="2026-10-26" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-700 mt-1"></label>
+                </div>
+                <label class="block text-[11px] font-black text-slate-600">Função e trilha<select id="cadFuncao" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"><option>Reforço escolar</option><option>Apoio e eventos</option></select></label>
+                <label class="block text-[11px] font-black text-slate-600">Padrinho<select id="cadPadrinho" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"><option>Matheus Luna (2 de 3)</option><option>Ana Paula Reis (1 de 3)</option></select></label>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeOverlay('modalCadastroOverlay')" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveCadastro()" class="btn-duo btn-duo-orange w-1/2 py-3 text-xs">ENVIAR CONVITE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: designar padrinho (RF-06) -->
+    <div id="modalPadrinhoOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
+            <h3 class="text-xl font-black text-slate-800 text-center">Designar padrinho</h3>
+            <p id="padrinhoModalText" class="text-xs font-bold text-slate-500 text-center"></p>
+            <label class="block text-[11px] font-black text-slate-600">Padrinho<select id="selPadrinho" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"><option value="Ana Paula Reis">Ana Paula Reis (1 de 3)</option><option value="Matheus Luna">Matheus Luna (2 de 3)</option></select></label>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeOverlay('modalPadrinhoOverlay')" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="savePadrinho()" class="btn-duo btn-duo-purple w-1/2 py-3 text-xs">DESIGNAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: novo conteúdo (RF-02) -->
+    <div id="modalConteudoOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
+            <h3 class="text-xl font-black text-slate-800 text-center">Novo conteúdo</h3>
+            <label class="block text-[11px] font-black text-slate-600">Título<input id="contTitulo" type="text" value="Como usar a sala de leitura" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal mt-1"></label>
+            <label class="block text-[11px] font-black text-slate-600">Categoria<select id="contCategoria" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"></select></label>
+            <label class="block text-[11px] font-black text-slate-600">Tipo<select id="contTipo" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"><option value="texto">Texto</option><option value="arquivo">Arquivo (PDF, JPG ou PNG até 10 MB)</option><option value="link">Link (Drive, YouTube, formulário)</option></select></label>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeOverlay('modalConteudoOverlay')" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveConteudo()" class="btn-duo btn-duo-teal w-1/2 py-3 text-xs">SALVAR RASCUNHO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: nova pergunta frequente (RF-07) -->
+    <div id="modalFaqOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-3 shadow-2xl">
+            <h3 class="text-xl font-black text-slate-800 text-center">Nova pergunta frequente</h3>
+            <label class="block text-[11px] font-black text-slate-600">Pergunta<input id="faqPergunta" type="text" value="Posso levar meu filho para a ONG?" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-purple mt-1"></label>
+            <label class="block text-[11px] font-black text-slate-600">Resposta<textarea id="faqResposta" rows="3" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 outline-none focus:border-brand-purple mt-1 resize-none">Não. Por segurança, só alunos matriculados e a equipe podem ficar nas salas.</textarea></label>
+            <label class="block text-[11px] font-black text-slate-600">Categoria<select id="faqCategoria" class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-700 mt-1"></select></label>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeOverlay('modalFaqOverlay')" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="saveFaq()" class="btn-duo btn-duo-purple w-1/2 py-3 text-xs">PUBLICAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Feedback Geral -->
+    <div id="modalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+            <div id="modalIcon" class="w-16 h-16 bg-orange-100 text-brand-orange rounded-2xl flex items-center justify-center text-3xl mx-auto font-black">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 id="modalTitle" class="text-xl font-black text-slate-800">Mensagem</h3>
+            <p id="modalBody" class="text-xs font-bold text-slate-600 leading-relaxed whitespace-pre-line text-left">Detalhes da ação executada.</p>
+            <div class="pt-2">
+                <button onclick="closeModal()" class="btn-duo btn-duo-orange w-full py-3 text-sm">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Envio de Dúvidas ao Padrinho -->
+    <div id="modalAskOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border-4 border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div class="w-12 h-12 bg-teal-100 text-brand-teal rounded-2xl flex items-center justify-center text-2xl font-black mx-auto">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 text-center">Enviar Dúvida ao Padrinho</h3>
+            <p class="text-xs font-bold text-slate-500 text-center">Sua dúvida chega ao padrinho <strong class="text-slate-800">Matheus Luna</strong> e à coordenação.</p>
+
+            <textarea id="askText" rows="3" placeholder="Digite sua dúvida aqui para a demonstração..." class="w-full bg-slate-100 border-2 border-slate-200 rounded-2xl p-3 text-xs font-bold text-slate-700 outline-none focus:border-brand-teal transition resize-none"></textarea>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeAskModal()" class="btn-duo btn-duo-white w-1/2 py-3 text-xs">CANCELAR</button>
+                <button onclick="sendQuestion()" class="btn-duo btn-duo-teal w-1/2 py-3 text-xs">ENVIAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Navegação Inferior Adaptável -->
+    <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-slate-200 z-40 py-2">
+        <div id="navContainer" class="max-w-3xl mx-auto flex justify-around items-center px-2">
+            <!-- Renderizado dinamicamente -->
+        </div>
+    </nav>
+
+    <script>
+        // Estado da Aplicação
+        let state = {
+            role: 'voluntario',
+            loggedIn: false,
+            loginAttempts: 0,
+            termsAccepted: false,
+            termsAcceptedAt: null,
+            remindersOn: true,
+            rating: 0,
+            certificateReady: false,
+            catFilter: 'Todas',
+            coordFilter: 'todos',
+            stepVersion: 1,
+            stepUpdated: '18/10/2026',
+            stepHistory: [{ v: 0, data: '02/09/2026', autor: 'Gustavo Mota', titulo: 'Regras básicas da ONG' }],
+            padrinhoTarget: null,
+
+            categorias: ['Sobre a ONG', 'Processos e rotinas', 'Regras, valores e conduta', 'Quem é quem', 'Ferramentas e acessos', 'O que se espera de você'],
+
+            // Central de conteúdos (RF-02)
+            conteudos: [
+                { id: 1, titulo: 'Nossa história e missão', cat: 'Sobre a ONG', tipo: 'texto', resp: 'Gustavo Mota', data: '10/09/2026', versao: 2, publicado: true, lido: true, texto: 'A ONG Esperança nasceu em 2009 no bairro Vila Barth e hoje atende 120 crianças no contraturno escolar.' },
+                { id: 2, titulo: 'Código de Convivência da ONG', cat: 'Regras, valores e conduta', tipo: 'texto', resp: 'Gustavo Mota', data: '18/10/2026', versao: 1, publicado: true, lido: false, texto: 'Pontualidade, respeito e uso de imagem somente com autorização.' },
+                { id: 3, titulo: 'Rotina de uma aula de reforço', cat: 'Processos e rotinas', tipo: 'link', resp: 'Ana Paula Reis', data: '05/10/2026', versao: 1, publicado: true, lido: false, texto: 'Vídeo de 4 minutos no YouTube mostrando a chegada dos alunos, o lanche e a atividade.' },
+                { id: 4, titulo: 'Quem procurar para cada assunto', cat: 'Quem é quem', tipo: 'texto', resp: 'Gustavo Mota', data: '01/10/2026', versao: 3, publicado: true, lido: false, texto: 'Escala e faltas: Gustavo (coordenação). Materiais e chaves: Cláudia (recepção). Dúvidas do dia a dia: seu padrinho.' },
+                { id: 5, titulo: 'Acesso à planilha de escala', cat: 'Ferramentas e acessos', tipo: 'link', resp: 'Gustavo Mota', data: '12/10/2026', versao: 1, publicado: true, lido: false, texto: 'Link do Google Planilhas com a escala do mês. O acesso é liberado pela coordenação.' },
+                { id: 6, titulo: 'O que esperamos nos 3 primeiros meses', cat: 'O que se espera de você', tipo: 'arquivo', resp: 'Gustavo Mota', data: '15/09/2026', versao: 1, publicado: true, lido: false, texto: 'PDF com as metas da função: frequência mínima de 90%, acompanhar 2 alunos e registrar a presença no fim da aula.' },
+                { id: 7, titulo: 'Protocolo de saída dos alunos', cat: 'Processos e rotinas', tipo: 'arquivo', resp: 'Ana Paula Reis', data: '20/10/2026', versao: 1, publicado: false, lido: false, texto: 'Rascunho em revisão.' }
+            ],
+
+            // Perguntas frequentes (RF-07)
+            faqs: [
+                { id: 5, cat: 'Ferramentas e acessos', p: 'Onde retiro meu crachá?', r: 'Na secretaria, de segunda a sexta, das 8h às 17h. Leve um documento com foto.' },
+                { id: 1, cat: 'Ferramentas e acessos', p: 'Onde retiro a chave da sala de materiais?', r: 'Na recepção, com a Cláudia. É preciso assinar o livro de controle.' },
+                { id: 2, cat: 'Processos e rotinas', p: 'Como registrar minhas horas voluntárias?', r: 'As horas contam automaticamente quando suas tarefas são concluídas e validadas no Acolhe+.' },
+                { id: 3, cat: 'Processos e rotinas', p: 'O que faço se precisar faltar?', r: 'Avise a coordenação com 24 horas de antecedência pela planilha de escala.' },
+                { id: 4, cat: 'Regras, valores e conduta', p: 'Posso tirar fotos dos alunos?', r: 'Só com autorização da coordenação e dos responsáveis pelo aluno.' }
+            ],
+
+            // Checklist de tarefas (RF-04)
+            tarefas: [
+                { id: 1, titulo: 'Entrar no grupo da equipe', prazo: 'Prazo: 15/10 (dia 1)', resp: 'Você', status: 'concluida', feitaEm: '15/10 às 09:12' },
+                { id: 2, titulo: 'Enviar cópia do RG para a secretaria', prazo: 'Venceu em 23/10', resp: 'Você', status: 'atrasada' },
+                { id: 3, titulo: 'Retirar o crachá na secretaria', prazo: 'Vence em 26/10 (em 2 dias)', resp: 'Você', status: 'pendente' },
+                { id: 4, titulo: 'Treinamento presencial com o padrinho', prazo: 'Prazo: 29/10', resp: 'Você', status: 'validacao', validador: 'Matheus Luna' },
+                { id: 5, titulo: 'Liberar acesso à planilha de escala', prazo: 'Prazo: 27/10', resp: 'Coordenação (Gustavo Mota)', status: 'outro' }
+            ],
+
+            // Integrantes acompanhados pela coordenação (RF-05)
+            integrantes: [
+                { id: 1, nome: 'João Domingues', funcao: 'Reforço escolar', vinculo: 'Voluntário', padrinho: 'Matheus Luna', progresso: 35, atrasadas: 1, acesso: 'hoje', inativo: false },
+                { id: 2, nome: 'Jailson Mendes', funcao: 'Apoio e eventos', vinculo: 'Jovem aprendiz', padrinho: null, progresso: 5, atrasadas: 1, acesso: 'há 8 dias', inativo: true },
+                { id: 3, nome: 'Paulo Guina', funcao: 'Apoio e eventos', vinculo: 'Voluntário', padrinho: 'Matheus Luna', progresso: 20, atrasadas: 0, acesso: 'ontem', inativo: false }
+            ],
+
+            observacoes: [{ data: '17/10', texto: 'Primeira aula acompanhada. Chegou no horário e se deu bem com a turma.' }],
+
+            // Termos (RF-08)
+            termos: [
+                { id: 1, nome: 'Termo de adesão ao serviço voluntário', versao: '1.0', aceites: 2 },
+                { id: 2, nome: 'Código de conduta', versao: '1.0', aceites: 2 },
+                { id: 3, nome: 'Compromisso de proteção à criança e ao adolescente', versao: '1.0', aceites: 2 },
+                { id: 4, nome: 'Política de privacidade (LGPD)', versao: '1.0', aceites: 2 }
+            ],
+            aceites: [
+                { nome: 'Paulo Guina', data: '20/10/2026 08:41', ip: '177.32.14.9', versao: '1.0' },
+                { nome: 'Jailson Mendes', data: '16/10/2026 19:05', ip: '189.45.120.3', versao: '1.0' }
+            ],
+            progress: 35,
+            currentView: 'view-trail',
+            step1Completed: true,
+            step2Completed: false,
+            step3Completed: false,
+            task2Completed: false,
+            unreadMessagesPadrinho: 1,
+            unreadRepliesVoluntario: 0,
+            editingTrilhaId: null,
+            deleteTargetType: null, // 'trilha' ou 'grupo'
+            deleteTargetId: null,
+            movingCollabId: null,
+
+            // Conteúdo dinâmico da Etapa 2 (Personalizável pelo Coordenador)
+            step2Content: {
+                title: "Código de Convivência da ONG",
+                text: "1. Pontualidade: Respeite os horários da escala.\n2. Respeito: Trate voluntários e alunos com gentileza.\n3. Uso de Imagem: Fotos só com autorização prévia da coordenação."
+            },
+
+            // Colaboradores e seus grupos vinculados
+            colaboradores: [
+                { id: 1, nome: "João Domingues", grupoId: 1, funcao: "Voluntário" },
+                { id: 2, nome: "Jailson Mendes", grupoId: 2, funcao: "Jovem aprendiz" },
+                { id: 3, nome: "Paulo Guina", grupoId: 2, funcao: "Voluntário" }
+            ],
+
+            // Grupos de Colaboradores
+            grupos: [
+                { id: 1, nome: "Reforço escolar" },
+                { id: 2, nome: "Apoio e eventos" }
+            ],
+
+            // Trilhas cadastradas
+            trilhas: [
+                { id: 1, nome: 'Reforço Escolar', grupo: 'Reforço escolar', etapas: 3, tempoMin: 15, desc: 'Trilha básica de acolhimento para voluntários de ensino.', ativa: true },
+                { id: 2, nome: 'Apoio e Eventos', grupo: 'Apoio e eventos', etapas: 2, tempoMin: 10, desc: 'Orientações de logística e recepção comunitária.', ativa: true }
+            ],
+
+            // Lista de Mensagens Mão Dupla
+            messagesList: [
+                {
+                    id: 1,
+                    sender: 'João Domingues',
+                    time: 'Hoje às 10:15',
+                    text: 'Oi Matheus Luna, em qual sala vai ser o treinamento de reforço escolar amanhã?',
+                    reply: null,
+                    replyTime: null
+                }
+            ]
+        };
+
+        function updateVolunteerTrailView() {
+            // Identifica qual o grupo do João Domingues (id 1)
+            const joaoCollab = state.colaboradores.find(c => c.id === 1);
+            if (joaoCollab) {
+                const userGroup = state.grupos.find(g => g.id === joaoCollab.grupoId);
+                if (userGroup) {
+                    // Encontra a trilha atribuída ao grupo dele
+                    const assignedTrail = state.trilhas.find(t => t.grupo === userGroup.nome);
+                    const titleEl = document.getElementById('currentVolunteerTrailTitle');
+                    if (titleEl) {
+                        titleEl.innerText = assignedTrail ? assignedTrail.nome : `Trilha Geral (${userGroup.nome})`;
+                    }
+                }
+            }
+        }
+
+        function playSuccessSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
+        function changeRole(role) {
+            state.role = role;
+            renderBottomNav();
+            if (role === 'voluntario') {
+                updateVolunteerTrailView();
+                switchView(state.loggedIn ? (state.termsAccepted ? 'view-trail' : 'view-terms') : 'view-login');
+            } else if (role === 'padrinho') {
+                switchView('view-padrinho-dashboard');
+            } else {
+                switchView('view-coordenador-dashboard');
+            }
+        }
+
+        function navBtn(id, view, icon, label, badge) {
+            return `<button id="${id}" onclick="switchView('${view}')" class="flex flex-col items-center text-slate-400 font-black relative px-1">
+                        <i class="fa-solid ${icon} text-xl"></i>
+                        <span class="text-[10px] tracking-wide mt-1">${label}</span>${badge || ''}
+                    </button>`;
+        }
+
+        function renderBottomNav() {
+            const container = document.getElementById('navContainer');
+            if (!container) return;
+            const badge = (n, cor) => n > 0 ? `<span class="absolute -top-1 right-0 ${cor} text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">${n}</span>` : '';
+            let html = '';
+            if (state.role === 'voluntario') {
+                html = navBtn('navTrail', 'view-trail', 'fa-map', 'Trilha')
+                     + navBtn('navChecklist', 'view-checklist', 'fa-list-check', 'Tarefas', badge(state.tarefas.filter(t => t.status === 'atrasada').length, 'bg-brand-red'))
+                     + navBtn('navConteudos', 'view-conteudos', 'fa-book-open', 'Central')
+                     + navBtn('navFaq', 'view-faq', 'fa-circle-question', 'Dúvidas')
+                     + navBtn('navMentor', 'view-mentor', 'fa-user-ninja', 'Padrinho', badge(state.unreadRepliesVoluntario, 'bg-brand-orange'));
+            } else if (state.role === 'padrinho') {
+                html = navBtn('navPadrinhoDash', 'view-padrinho-dashboard', 'fa-users', 'Apadrinhados')
+                     + navBtn('navPadrinhoMsgs', 'view-padrinho-messages', 'fa-comments', 'Mensagens', badge(state.unreadMessagesPadrinho, 'bg-brand-red'))
+                     + navBtn('navConteudos', 'view-conteudos', 'fa-book-open', 'Central');
+            } else {
+                html = navBtn('navCoordDash', 'view-coordenador-dashboard', 'fa-chart-pie', 'Painel')
+                     + navBtn('navCoordTrilhas', 'view-coordenador-trilhas', 'fa-layer-group', 'Trilhas')
+                     + navBtn('navCoordConteudos', 'view-coordenador-conteudos', 'fa-book', 'Conteúdos')
+                     + navBtn('navCoordTermos', 'view-coordenador-termos', 'fa-file-signature', 'Termos');
+            }
+            container.innerHTML = html;
+            updateNavStyles(state.currentView);
+        }
+
+        const ALL_VIEWS = [
+            'view-login', 'view-terms', 'view-trail', 'view-step-content', 'view-checklist', 'view-mentor',
+            'view-faq', 'view-conteudos', 'view-perfil',
+            'view-padrinho-dashboard', 'view-padrinho-messages',
+            'view-coordenador-dashboard', 'view-coordenador-trilhas', 'view-coordenador-conteudos', 'view-coordenador-termos'
+        ];
+
+        function switchView(viewId) {
+            if (state.role === 'voluntario') {
+                if (!state.loggedIn && viewId !== 'view-login') viewId = 'view-login';
+                else if (state.loggedIn && !state.termsAccepted && viewId !== 'view-terms') viewId = 'view-terms';
+            }
+
+            if (viewId === 'view-padrinho-messages') {
+                state.unreadMessagesPadrinho = 0;
+                const b = document.getElementById('padrinhoUnreadBadge');
+                if (b) b.style.display = 'none';
+            }
+            if (viewId === 'view-mentor') state.unreadRepliesVoluntario = 0;
+
+            state.currentView = viewId;
+            ALL_VIEWS.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+            const activeView = document.getElementById(viewId);
+            if (activeView) activeView.classList.remove('hidden');
+
+            // Barra de progresso, navegação e botões do topo
+            const gate = viewId === 'view-login' || viewId === 'view-terms';
+            document.getElementById('statsBar').classList.toggle('hidden', state.role !== 'voluntario' || gate);
+            document.getElementById('bottomNav').classList.toggle('hidden', gate);
+            document.getElementById('headerSearchBtn').classList.toggle('hidden', gate);
+            document.getElementById('headerProfileBtn').classList.toggle('hidden', state.role !== 'voluntario' || gate);
+
+            if (viewId === 'view-faq') renderSearch();
+            if (viewId === 'view-conteudos') renderConteudos();
+            if (viewId === 'view-perfil') renderAcceptedTerms();
+            if (viewId === 'view-checklist') renderChecklist();
+            if (viewId === 'view-coordenador-dashboard') renderCoordList();
+            if (viewId === 'view-coordenador-termos') renderCoordTermos();
+
+            renderBottomNav();
+            window.scrollTo(0, 0);
+        }
+
+        function updateNavStyles(activeView) {
+            const buttons = document.querySelectorAll('#navContainer button');
+            buttons.forEach(btn => {
+                btn.className = "flex flex-col items-center text-slate-400 font-black hover:text-brand-orange relative px-1";
+            });
+
+            const activeBtnMap = {
+                'view-trail': 'navTrail',
+                'view-checklist': 'navChecklist',
+                'view-mentor': 'navMentor',
+                'view-faq': 'navFaq',
+                'view-padrinho-dashboard': 'navPadrinhoDash',
+                'view-padrinho-messages': 'navPadrinhoMsgs',
+                'view-coordenador-dashboard': 'navCoordDash',
+                'view-coordenador-trilhas': 'navCoordTrilhas',
+                'view-conteudos': 'navConteudos',
+                'view-coordenador-conteudos': 'navCoordConteudos',
+                'view-coordenador-termos': 'navCoordTermos'
+            };
+
+            const activeId = activeBtnMap[activeView];
+            if (activeId) {
+                const targetBtn = document.getElementById(activeId);
+                if (targetBtn) {
+                    let colorClass = "text-brand-orange";
+                    if (state.role === 'padrinho') colorClass = "text-brand-purple";
+                    if (state.role === 'coordenador') colorClass = "text-slate-800";
+                    targetBtn.className = `flex flex-col items-center ${colorClass} font-black scale-105 transition relative px-1`;
+                    targetBtn.setAttribute('aria-current', 'page');
+                }
+            }
+        }
+
+        function toggleTermsBtn() {
+            const checks = [...document.querySelectorAll('.term-check')];
+            const ok = checks.filter(c => c.checked).length;
+            document.getElementById('termsCounter').innerText = `${ok} de ${checks.length} aceitos`;
+            const btn = document.getElementById('btnAcceptTerms');
+            btn.disabled = ok !== checks.length;
+            btn.classList.toggle('btn-duo-disabled', btn.disabled);
+        }
+
+        function nowText() {
+            const d = new Date();
+            const p = n => String(n).padStart(2, '0');
+            return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+        }
+
+        function acceptTerms() {
+            state.termsAccepted = true;
+            state.termsAcceptedAt = nowText();
+            state.aceites.unshift({ nome: 'João Domingues', data: state.termsAcceptedAt, ip: '189.45.67.12', versao: '1.0' });
+            state.termos.forEach(t => t.aceites = 3);
+            renderCoordTermos();
+            playSuccessSound();
+            confetti({ particleCount: 80, spread: 60 });
+            switchView('view-trail');
+            showModal('Termos aceitos!', `Aceite registrado em ${state.termsAcceptedAt}, IP 189.45.67.12, versão 1.0 dos 4 termos.\nSua trilha foi liberada.`);
+        }
+
+        // ---------- Login (RF-01 / US01) ----------
+        function doLogin() {
+            const err = document.getElementById('loginError');
+            const btn = document.getElementById('btnLogin');
+            const senha = document.getElementById('loginSenha').value;
+            if (state.loginAttempts >= 5) return;
+            if (senha === 'acolhe123') {
+                state.loggedIn = true;
+                state.loginAttempts = 0;
+                err.classList.add('hidden');
+                switchView(state.termsAccepted ? 'view-trail' : 'view-terms');
+                return;
+            }
+            state.loginAttempts++;
+            const restam = 5 - state.loginAttempts;
+            err.classList.remove('hidden');
+            if (restam > 0) {
+                err.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i> E-mail ou senha incorretos. Restam ${restam} tentativa${restam > 1 ? 's' : ''}.`;
+            } else {
+                err.innerHTML = `<i class="fa-solid fa-lock mr-1"></i> Acesso bloqueado após 5 tentativas. Tente de novo em 15 minutos ou use "Esqueci minha senha". <button onclick="unlockLogin()" class="underline ml-1">Desbloquear (demo)</button>`;
+                btn.disabled = true;
+                btn.classList.add('btn-duo-disabled');
+            }
+        }
+
+        function unlockLogin() {
+            state.loginAttempts = 0;
+            const btn = document.getElementById('btnLogin');
+            btn.disabled = false;
+            btn.classList.remove('btn-duo-disabled');
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('loginSenha').value = 'acolhe123';
+        }
+
+        function logout() {
+            state.loggedIn = false;
+            switchView('view-login');
+        }
+
+        function openTrailStep(stepNumber) {
+            if (stepNumber === 1) {
+                showModal('Conhecendo a ONG ✓', 'Etapa concluída em 15/10.\nConteúdo lido: "Nossa história e missão".\nVocê pode reler a qualquer momento na Central.');
+            } else if (stepNumber === 2) {
+                document.getElementById('stepContentTitle').innerText = state.step2Content.title;
+                document.getElementById('stepContentBody').innerHTML = state.step2Content.text.split('\n').map(p => `<p>${p}</p>`).join('');
+                document.getElementById('stepContentVersion').innerText = `Versão oficial v${state.stepVersion}`;
+                document.getElementById('stepContentDate').innerHTML = `<i class="fa-solid fa-clock mr-1"></i> Atualizado em ${state.stepUpdated}`;
+                const btn = document.getElementById('btnCompleteStepContent');
+                btn.classList.toggle('hidden', state.step2Completed);
+                switchView('view-step-content');
+            } else if (stepNumber === 3) {
+                if (!state.step2Completed) {
+                    showModal('Etapa bloqueada 🔒', 'Conclua a etapa "Regras e conduta" marcando o conteúdo como lido. A próxima etapa é liberada em seguida.');
+                    return;
+                }
+                switchView('view-checklist');
+            }
+        }
+
+        function completeStepContent() {
+            playSuccessSound();
+            confetti({ particleCount: 100, spread: 70 });
+            state.step2Completed = true;
+            const c = state.conteudos.find(x => x.id === 2); if (c) c.lido = true;
+            refreshProgress();
+
+            const node2 = document.getElementById('node2');
+            const node2Label = document.getElementById('node2Label');
+            if (node2) {
+                node2.className = "node-circle node-completed";
+                node2.innerHTML = '<i class="fa-solid fa-check"></i>';
+            }
+            if (node2Label) {
+                node2Label.className = "text-xs font-extrabold text-teal-700 mt-2 bg-teal-50 px-3 py-1 rounded-full border border-teal-200";
+            }
+
+            const node3 = document.getElementById('node3');
+            const node3Label = document.getElementById('node3Label');
+            if (node3) {
+                node3.className = "node-circle node-orange animate-bounce";
+                node3.innerHTML = '<i class="fa-solid fa-list-check"></i>';
+            }
+            if (node3Label) {
+                node3Label.className = "text-xs font-black text-brand-orange mt-2 bg-orange-100 px-3 py-1 rounded-full border border-orange-300";
+            }
+
+            showModal('Etapa 2 concluída! 🎉', 'Leitura registrada. A etapa "Tarefas de chegada" foi liberada.');
+            switchView('view-trail');
+        }
+
+        // ---------- Checklist (RF-04) ----------
+        function renderChecklist() {
+            const list = document.getElementById('taskList');
+            if (!list) return;
+            const feitas = state.tarefas.filter(t => t.status === 'concluida').length;
+            document.getElementById('tasksCounter').innerText = `${feitas} de ${state.tarefas.length} concluídas`;
+            document.getElementById('reminderInfoText').innerText = state.remindersOn
+                ? 'Lembretes por e-mail ativados: 2 dias antes e no dia do prazo.'
+                : 'Lembretes por e-mail desativados.';
+            const atrasadas = state.tarefas.filter(t => t.status === 'atrasada').length;
+            document.getElementById('overdueBanner').classList.toggle('hidden', atrasadas === 0);
+
+            list.innerHTML = state.tarefas.map(t => {
+                const resp = `<span class="text-slate-400"> • Responsável: ${t.resp}</span>`;
+                if (t.status === 'concluida') return `
+                    <div class="flex items-center gap-3 p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl">
+                        <div class="w-8 h-8 bg-brand-teal text-white rounded-xl flex items-center justify-center shrink-0"><i class="fa-solid fa-check"></i></div>
+                        <div><p class="text-sm font-extrabold text-slate-500 line-through">${t.titulo}</p>
+                        <p class="text-[11px] text-teal-700 font-bold">Concluída em ${t.feitaEm}${t.validadoPor ? ' • validada por ' + t.validadoPor : ''}</p></div>
+                    </div>`;
+                if (t.status === 'atrasada') return `
+                    <label class="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-300 rounded-2xl cursor-pointer">
+                        <input type="checkbox" onchange="completeTask(${t.id})" class="w-7 h-7 accent-brand-red shrink-0" aria-label="Concluir ${t.titulo}">
+                        <div class="flex-1"><p class="text-sm font-extrabold text-red-950">${t.titulo}</p>
+                        <p class="text-[11px] text-red-700 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Atrasada • ${t.prazo}${resp}</p></div>
+                    </label>`;
+                if (t.status === 'pendente') return `
+                    <label class="flex items-center gap-3 p-4 bg-white border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-brand-teal">
+                        <input type="checkbox" onchange="completeTask(${t.id})" class="w-7 h-7 accent-brand-orange shrink-0" aria-label="Concluir ${t.titulo}">
+                        <div class="flex-1"><p class="text-sm font-extrabold text-slate-800">${t.titulo}</p>
+                        <p class="text-[11px] text-brand-teal font-bold"><i class="fa-solid fa-clock mr-1"></i> ${t.prazo}${resp}</p></div>
+                    </label>`;
+                if (t.status === 'validacao') return `
+                    <div class="p-4 bg-purple-50 border-2 border-purple-200 rounded-2xl space-y-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-brand-purple text-white rounded-xl flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-user-shield"></i></div>
+                            <div><p class="text-sm font-extrabold text-purple-950">${t.titulo}</p><p class="text-[11px] text-purple-700 font-bold">${t.prazo} • precisa da validação do padrinho</p></div>
+                        </div>
+                        <p class="text-[11px] font-black bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg inline-block"><i class="fa-solid fa-hourglass-half mr-1"></i> Aguardando validação de ${t.validador}</p>
+                    </div>`;
+                return `
+                    <div class="flex items-center gap-3 p-4 bg-white border-2 border-dashed border-slate-300 rounded-2xl">
+                        <div class="w-8 h-8 bg-slate-200 text-slate-500 rounded-xl flex items-center justify-center shrink-0"><i class="fa-solid fa-user-tie"></i></div>
+                        <div><p class="text-sm font-extrabold text-slate-700">${t.titulo}</p><p class="text-[11px] text-slate-500 font-bold">${t.prazo} • Responsável: ${t.resp}</p></div>
+                    </div>`;
+            }).join('');
+        }
+
+        function completeTask(taskId) {
+            const t = state.tarefas.find(x => x.id === taskId);
+            if (!t) return;
+            t.status = 'concluida';
+            t.feitaEm = nowText().slice(0, 5) + ' às ' + nowText().slice(11);
+            playSuccessSound();
+            confetti({ particleCount: 60, spread: 55 });
+            const joao = state.integrantes.find(i => i.id === 1);
+            joao.atrasadas = state.tarefas.filter(x => x.status === 'atrasada').length;
+            renderChecklist();
+            renderBottomNav();
+
+            refreshProgress();
+        }
+
+        // Progresso: etapa 1 (35%) + etapa 2 (30%) + tarefas do integrante (35%)
+        function refreshProgress() {
+            const minhas = state.tarefas.filter(x => x.id === 2 || x.id === 3);
+            const feitas = minhas.filter(x => x.status === 'concluida').length;
+            const p = Math.round(35 + (state.step2Completed ? 30 : 0) + 35 * feitas / minhas.length);
+            updateOverallProgress(p);
+            if (p === 100 && !state.step3Completed) {
+                state.step3Completed = true;
+                const bubble = document.querySelector('#view-trail .duo-speech-bubble p');
+                if (bubble) bubble.innerHTML = 'Integração concluída, <span class="text-brand-orange font-black">João</span>! Seu certificado fica no seu perfil. <i class="fa-solid fa-trophy text-brand-orange ml-1"></i>';
+                const node3 = document.getElementById('node3');
+                const label3 = document.getElementById('node3Label');
+                if (node3) { node3.className = 'node-circle node-completed'; node3.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+                if (label3) label3.className = 'text-xs font-extrabold text-teal-700 mt-2 bg-teal-50 px-3 py-1 rounded-full border border-teal-200';
+                setTimeout(triggerCongratsModal, 600);
+            }
+        }
+
+        function updateOverallProgress(newProg) {
+            state.progress = newProg;
+            const progressBar = document.getElementById('topProgressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const padrinhoBadge = document.getElementById('padrinhoProgressBadge');
+            const coordProgressText = document.getElementById('coordProgressText');
+            const coordProgressBar = document.getElementById('coordProgressBar');
+
+            if (progressBar) progressBar.style.width = newProg + '%';
+            if (progressPercent) progressPercent.innerText = newProg + '%';
+            if (padrinhoBadge) padrinhoBadge.innerText = newProg + '% concluído';
+            const joao = state.integrantes.find(i => i.id === 1);
+            if (joao) { joao.progresso = newProg; renderCoordList(); }
+        }
+
+        function triggerCongratsModal() {
+            confetti({ particleCount: 150, spread: 90 });
+            document.getElementById('modalCongratsOverlay').classList.remove('hidden');
+        }
+
+        function closeCongratsModal() {
+            document.getElementById('modalCongratsOverlay').classList.add('hidden');
+        }
+
+        function setRating(n) {
+            state.rating = n;
+            document.querySelectorAll('#ratingStars i').forEach((el, i) => {
+                el.parentElement.className = i < n ? 'text-brand-yellow' : '';
+            });
+            const btn = document.getElementById('btnSendRating');
+            btn.disabled = false;
+            btn.classList.remove('btn-duo-disabled');
+        }
+
+        function sendRating() {
+            state.certificateReady = true;
+            closeCongratsModal();
+            const btn = document.getElementById('btnCertificate');
+            btn.disabled = false;
+            btn.className = 'btn-duo btn-duo-orange w-full py-3 text-xs';
+            btn.innerHTML = '<i class="fa-solid fa-certificate mr-2"></i> BAIXAR CERTIFICADO (PDF)';
+            downloadCertificate();
+        }
+
+        function downloadCertificate() {
+            playSuccessSound();
+            showModal('Certificado gerado 📄', 'Seu certificado de conclusão da integração foi baixado em PDF. Ele também fica disponível no seu perfil.');
+        }
+
+        // ========================================================
+        // GESTÃO DE TRILHAS, GRUPOS E COLABORADORES (COORDENADOR)
+        // ========================================================
+
+        function renderTrilhas() {
+            const list = document.getElementById('trilhasList');
+            if (!list) return;
+
+            let html = '';
+            state.trilhas.forEach(trilha => {
+                html += `
+                    <div class="p-4 border-2 border-slate-200 rounded-2xl bg-white space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-black text-sm text-slate-800">${trilha.nome}</h3>
+                                <p class="text-xs text-slate-400 font-bold mt-0.5">Função: <span class="text-brand-purple font-black">${trilha.grupo || 'Geral'}</span> • ${trilha.etapas} etapas</p>
+                            </div>
+                            <span class="text-[10px] font-black text-teal-700 bg-teal-100 px-2.5 py-1 rounded-full">Ativa</span>
+                        </div>
+                        <p class="text-xs text-slate-600 font-semibold leading-relaxed">${trilha.desc}</p>
+                        <p class="text-[11px] text-slate-500 font-bold">${trilha.id === 1 ? 'Conhecendo a ONG (5 min) → Regras e conduta (5 min) → Tarefas de chegada (5 min)' : trilha.etapas + ' etapas • ' + trilha.tempoMin + ' min no total'} • liberação em sequência</p>
+
+                        <div class="flex space-x-2 pt-1 border-t border-slate-100">
+                            <button onclick="openEditStepModal()" class="btn-duo btn-duo-white py-1.5 px-3 text-[11px] flex-1">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i> EDITAR CONTEÚDO
+                            </button>
+                            <button onclick="duplicateTrilha(${trilha.id})" class="btn-duo btn-duo-white py-1.5 px-3 text-[11px]">
+                                <i class="fa-solid fa-copy mr-1"></i> DUPLICAR
+                            </button>
+                            <button onclick="confirmDeleteModal('trilha', ${trilha.id})" class="btn-duo btn-duo-red py-1.5 px-3 text-[11px]">
+                                <i class="fa-solid fa-trash-can mr-1"></i> EXCLUIR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+        }
+
+        function duplicateTrilha(id) {
+            const t = state.trilhas.find(x => x.id === id);
+            state.trilhas.push({ ...t, id: Date.now(), nome: t.nome + ' (cópia)' });
+            renderTrilhas();
+            playSuccessSound();
+            showModal('Trilha duplicada', `Criamos "${t.nome} (cópia)" com as mesmas etapas. Ajuste o que for diferente para a nova função.`);
+        }
+
+        function renderGrupos() {
+            const list = document.getElementById('groupsList');
+            if (!list) return;
+
+            let html = '';
+            state.grupos.forEach(grupo => {
+                const membros = state.colaboradores.filter(c => c.grupoId === grupo.id);
+                
+                let membrosHtml = '';
+                if (membros.length === 0) {
+                    membrosHtml = `<p class="text-[11px] text-slate-400 font-bold italic">Nenhum voluntário neste grupo.</p>`;
+                } else {
+                    membros.forEach(m => {
+                        membrosHtml += `
+                            <div class="flex items-center justify-between py-1.5 border-b border-purple-100/50 last:border-0">
+                                <div>
+                                    <span class="font-black text-xs text-slate-800">${m.nome}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold block">${m.funcao}</span>
+                                </div>
+                                <button onclick="openMoveCollabModal(${m.id})" class="btn-duo btn-duo-white py-1 px-2 text-[10px] text-purple-800">
+                                    <i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> MOVER
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                    <div class="p-4 border-2 border-purple-200 bg-purple-50/40 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-black text-sm text-purple-950">${grupo.nome}</h4>
+                                <p class="text-[10px] text-purple-700 font-bold">${membros.length} integrante(s)</p>
+                            </div>
+                            <button onclick="confirmDeleteModal('grupo', ${grupo.id})" class="btn-duo btn-duo-red py-1 px-2.5 text-[10px]">
+                                <i class="fa-solid fa-trash-can mr-1"></i> EXCLUIR
+                            </button>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-purple-100 space-y-1">
+                            ${membrosHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+            populateGrupoOptions();
+        }
+
+        function populateGrupoOptions() {
+            const select = document.getElementById('trilhaGrupoSelect');
+            if (!select) return;
+
+            let html = '';
+            state.grupos.forEach(g => {
+                html += `<option value="${g.nome}">${g.nome}</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function openTrilhaModal() {
+            state.editingTrilhaId = null;
+            document.getElementById('modalTrilhaTitle').innerText = 'Criar Nova Trilha';
+            document.getElementById('trilhaNomeInput').value = '';
+            document.getElementById('trilhaEtapasInput').value = '3';
+            document.getElementById('trilhaTempoInput').value = '20';
+            document.getElementById('trilhaDescInput').value = '';
+            populateGrupoOptions();
+            document.getElementById('modalTrilhaOverlay').classList.remove('hidden');
+        }
+
+        function closeTrilhaModal() {
+            document.getElementById('modalTrilhaOverlay').classList.add('hidden');
+        }
+
+        function saveTrilha() {
+            const nome = document.getElementById('trilhaNomeInput').value.trim();
+            const grupo = document.getElementById('trilhaGrupoSelect').value;
+            const etapas = parseInt(document.getElementById('trilhaEtapasInput').value) || 3;
+            const tempoMin = parseInt(document.getElementById('trilhaTempoInput').value) || 15;
+            const desc = document.getElementById('trilhaDescInput').value.trim();
+
+            if (!nome) {
+                alert('Por favor, informe o nome da trilha.');
+                return;
+            }
+
+            const newTrilha = {
+                id: Date.now(),
+                nome: nome,
+                grupo: grupo,
+                etapas: etapas,
+                tempoMin: tempoMin,
+                desc: desc || 'Nova trilha de integração para voluntários.',
+                ativa: true
+            };
+
+            state.trilhas.push(newTrilha);
+            closeTrilhaModal();
+            renderTrilhas();
+            updateVolunteerTrailView();
+            playSuccessSound();
+            showModal('Trilha Criada!', `A trilha "${nome}" foi destinada ao grupo "${grupo}" com sucesso!`);
+        }
+
+        // Modal de Mover Colaborador
+        function openMoveCollabModal(collabId) {
+            state.movingCollabId = collabId;
+            const collab = state.colaboradores.find(c => c.id === collabId);
+            if (!collab) return;
+
+            document.getElementById('moveCollabNameText').innerText = `Mover o voluntário ${collab.nome} para outro grupo:`;
+            
+            const select = document.getElementById('selectGroupForCollab');
+            let html = '';
+            state.grupos.forEach(g => {
+                const selected = g.id === collab.grupoId ? 'selected' : '';
+                html += `<option value="${g.id}" ${selected}>${g.nome}</option>`;
+            });
+            select.innerHTML = html;
+
+            document.getElementById('modalMoveCollabOverlay').classList.remove('hidden');
+        }
+
+        function closeMoveCollabModal() {
+            document.getElementById('modalMoveCollabOverlay').classList.add('hidden');
+        }
+
+        function saveCollabGroupMove() {
+            const select = document.getElementById('selectGroupForCollab');
+            const newGroupId = parseInt(select.value);
+
+            const collab = state.colaboradores.find(c => c.id === state.movingCollabId);
+            if (collab) {
+                collab.grupoId = newGroupId;
+                closeMoveCollabModal();
+                renderGrupos();
+                updateVolunteerTrailView();
+                playSuccessSound();
+                showModal('Colaborador Organizado!', `${collab.nome} foi movido com sucesso.`);
+            }
+        }
+
+        // Modal de Edição dos Conteúdos da Etapa
+        function openEditStepModal() {
+            document.getElementById('editStepTitleInput').value = state.step2Content.title;
+            document.getElementById('editStepTextInput').value = state.step2Content.text;
+            document.getElementById('modalEditStepContentOverlay').classList.remove('hidden');
+        }
+
+        function closeEditStepModal() {
+            document.getElementById('modalEditStepContentOverlay').classList.add('hidden');
+        }
+
+        function saveStepContent() {
+            const newTitle = document.getElementById('editStepTitleInput').value.trim();
+            const newText = document.getElementById('editStepTextInput').value.trim();
+
+            if (newTitle && newText) {
+                state.stepHistory.unshift({ v: state.stepVersion, data: state.stepUpdated, autor: 'Gustavo Mota', titulo: state.step2Content.title });
+                state.step2Content.title = newTitle;
+                state.step2Content.text = newText;
+                state.stepVersion++;
+                state.stepUpdated = nowText().slice(0, 10);
+                const c = state.conteudos.find(x => x.id === 2);
+                if (c) { c.titulo = newTitle; c.versao = state.stepVersion; c.data = state.stepUpdated; }
+                renderCoordConteudos();
+                closeEditStepModal();
+                playSuccessSound();
+                showModal('Nova versão publicada', `"${newTitle}" agora está na versão ${state.stepVersion}. A versão anterior foi para o histórico, e os integrantes só veem a oficial.`);
+            }
+        }
+
+        // Modal Personalizado para Exclusão Generica (Trilha ou Grupo)
+        function confirmDeleteModal(type, id) {
+            state.deleteTargetType = type;
+            state.deleteTargetId = id;
+
+            const titleEl = document.getElementById('deleteConfirmTitle');
+            const textEl = document.getElementById('deleteConfirmText');
+
+            if (type === 'trilha') {
+                const target = state.trilhas.find(t => t.id === id);
+                titleEl.innerText = "Excluir Trilha?";
+                textEl.innerText = `Tem certeza que deseja excluir a trilha "${target ? target.nome : ''}" permanentemente?`;
+            } else if (type === 'grupo') {
+                const target = state.grupos.find(g => g.id === id);
+                titleEl.innerText = "Excluir Grupo?";
+                textEl.innerText = `Tem certeza que deseja excluir o grupo "${target ? target.nome : ''}"? Voluntários neste grupo ficarão sem grupo definido.`;
+            }
+
+            document.getElementById('modalConfirmDeleteOverlay').classList.remove('hidden');
+        }
+
+        function closeConfirmDeleteModal() {
+            document.getElementById('modalConfirmDeleteOverlay').classList.add('hidden');
+        }
+
+        function executeDeleteAction() {
+            if (state.deleteTargetType === 'trilha') {
+                state.trilhas = state.trilhas.filter(t => t.id !== state.deleteTargetId);
+                renderTrilhas();
+                updateVolunteerTrailView();
+                playSuccessSound();
+                showModal('Trilha Excluída', 'A trilha foi removida do sistema com sucesso.');
+            } else if (state.deleteTargetType === 'grupo') {
+                const grupoExcluido = state.grupos.find(g => g.id === state.deleteTargetId);
+                state.grupos = state.grupos.filter(g => g.id !== state.deleteTargetId);
+                
+                // Move colaboradores desse grupo para sem grupo (0)
+                state.colaboradores.forEach(c => {
+                    if (c.grupoId === state.deleteTargetId) c.grupoId = 0;
+                });
+
+                renderGrupos();
+                renderTrilhas();
+                updateVolunteerTrailView();
+                playSuccessSound();
+                showModal('Grupo Excluído', `O grupo foi removido.`);
+            }
+            closeConfirmDeleteModal();
+        }
+
+        // Gestão de Grupos
+        function openGroupModal() {
+            document.getElementById('groupNameInput').value = '';
+            document.getElementById('modalGroupOverlay').classList.remove('hidden');
+        }
+
+        function closeGroupModal() {
+            document.getElementById('modalGroupOverlay').classList.add('hidden');
+        }
+
+        function saveGroup() {
+            const name = document.getElementById('groupNameInput').value.trim();
+            if (!name) return;
+
+            const newGrp = {
+                id: Date.now(),
+                nome: name
+            };
+
+            state.grupos.push(newGrp);
+            closeGroupModal();
+            renderGrupos();
+            playSuccessSound();
+            showModal('Grupo Criado!', `O grupo de colaboradores "${name}" foi adicionado.`);
+        }
+
+        // ========================================================
+        // COMUNICAÇÃO DE MÃO DUPLA (VOLUNTÁRIO ↔ PADRINHO)
+        // ========================================================
+
+        function openAskModal() {
+            document.getElementById('modalAskOverlay').classList.remove('hidden');
+        }
+
+        function closeAskModal() {
+            document.getElementById('modalAskOverlay').classList.add('hidden');
+        }
+
+        function sendQuestion() {
+            const txtInput = document.getElementById('askText');
+            if (!txtInput) return;
+            const textValue = txtInput.value.trim();
+
+            if (textValue.length === 0) {
+                alert('Por favor, digite sua dúvida antes de enviar.');
+                return;
+            }
+
+            const newMessage = {
+                id: Date.now(),
+                sender: 'João Domingues',
+                time: 'Agora',
+                text: textValue,
+                reply: null,
+                replyTime: null
+            };
+
+            state.messagesList.unshift(newMessage);
+            state.unreadMessagesPadrinho++;
+
+            renderPadrinhoMessages();
+            renderVolunteerChat();
+            renderBottomNav();
+
+            closeAskModal();
+            playSuccessSound();
+            txtInput.value = '';
+
+            showModal('Dúvida enviada', 'Matheus Luna recebeu sua dúvida. A resposta aparece na aba Padrinho.');
+        }
+
+        function renderPadrinhoMessages() {
+            const feed = document.getElementById('padrinhoMessageFeed');
+            if (!feed) return;
+
+            let html = '';
+            state.messagesList.forEach(msg => {
+                html += `
+                    <div class="border-2 border-purple-200 bg-purple-50/50 rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-7 h-7 bg-brand-orange text-white rounded-lg flex items-center justify-center font-black text-xs">JD</div>
+                                <span class="font-extrabold text-xs text-slate-800">${msg.sender}</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400">${msg.time}</span>
+                        </div>
+                        <p class="text-xs font-bold text-slate-700 bg-white p-3 rounded-xl border border-purple-100">
+                            "${msg.text}"
+                        </p>
+
+                        ${msg.reply ? `
+                            <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl space-y-1">
+                                <p class="text-[10px] font-black text-purple-900"><i class="fa-solid fa-reply mr-1"></i> Sua Resposta (${msg.replyTime}):</p>
+                                <p class="text-xs font-bold text-purple-950">"${msg.reply}"</p>
+                            </div>
+                            ${msg.virouFaq ? '<p class="text-[11px] font-black text-teal-700"><i class="fa-solid fa-check mr-1"></i> Incluída nas perguntas frequentes</p>' : `
+                            <button onclick="messageToFaq(${msg.id})" class="btn-duo btn-duo-white py-1.5 px-3 text-[11px]"><i class="fa-solid fa-circle-question mr-1"></i> TRANSFORMAR EM PERGUNTA FREQUENTE</button>`}
+                        ` : `
+                            <div class="pl-3 border-l-2 border-brand-purple space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <textarea id="replyText_${msg.id}" placeholder="Responder João..." class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-700 outline-none resize-none"></textarea>
+                                    <button onclick="replyMessage(${msg.id})" class="btn-duo btn-duo-purple py-2 px-3 text-xs">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            feed.innerHTML = html;
+        }
+
+        function replyMessage(msgId) {
+            const input = document.getElementById(`replyText_${msgId}`);
+            if (!input) return;
+            const replyVal = input.value.trim();
+
+            if (!replyVal) {
+                alert('Digite uma resposta antes de enviar.');
+                return;
+            }
+
+            const targetMsg = state.messagesList.find(m => m.id === msgId);
+            if (targetMsg) {
+                targetMsg.reply = replyVal;
+                targetMsg.replyTime = 'Agora';
+
+                state.unreadRepliesVoluntario++;
+                renderPadrinhoMessages();
+                renderVolunteerChat();
+                renderBottomNav();
+
+                playSuccessSound();
+                showModal('Resposta enviada', 'João Domingues vai ver a resposta na tela do padrinho e receber um aviso por e-mail.');
+            }
+        }
+
+        function renderVolunteerChat() {
+            const feed = document.getElementById('volunteerChatFeed');
+            if (!feed) return;
+
+            if (state.messagesList.length === 0) {
+                feed.innerHTML = `<p class="text-xs text-slate-400 font-bold text-center py-2">Nenhuma dúvida enviada até o momento.</p>`;
+                return;
+            }
+
+            let html = '';
+            state.messagesList.forEach(msg => {
+                html += `
+                    <div class="border-2 border-slate-200 rounded-2xl p-3.5 space-y-2 bg-slate-50">
+                        <div class="flex justify-between items-center text-[11px] font-extrabold text-slate-500">
+                            <span>Sua Pergunta:</span>
+                            <span>${msg.time}</span>
+                        </div>
+                        <p class="text-xs font-bold text-slate-800 bg-white p-2.5 rounded-xl border border-slate-200">
+                            "${msg.text}"
+                        </p>
+
+                        ${msg.reply ? `
+                            <div class="bg-purple-100 border-2 border-purple-300 p-3 rounded-xl space-y-1">
+                                <div class="flex justify-between items-center text-[10px] font-black text-purple-900">
+                                    <span><i class="fa-solid fa-user-ninja mr-1"></i> Resposta do Padrinho Matheus Luna:</span>
+                                    <span>${msg.replyTime}</span>
+                                </div>
+                                <p class="text-xs font-black text-purple-950">"${msg.reply}"</p>
+                            </div>
+                        ` : `
+                            <p class="text-[11px] font-extrabold text-amber-700 bg-amber-50 p-2 rounded-xl flex items-center">
+                                <i class="fa-solid fa-clock mr-1.5"></i> Aguardando resposta do Matheus Luna...
+                            </p>
+                        `}
+                    </div>
+                `;
+            });
+
+            feed.innerHTML = html;
+        }
+
+        function validateTaskPadrinho() {
+            const t = state.tarefas.find(x => x.status === 'validacao');
+            if (!t) return;
+            t.status = 'concluida';
+            t.feitaEm = nowText().slice(0, 5) + ' às ' + nowText().slice(11);
+            t.validadoPor = 'Matheus Luna';
+            playSuccessSound();
+            confetti({ particleCount: 70, spread: 60 });
+            const btn = document.getElementById('btnValidatePadrinho');
+            btn.className = 'btn-duo btn-duo-disabled py-2 px-3 text-[11px]';
+            btn.disabled = true;
+            btn.innerText = 'VALIDADA ✓';
+            document.getElementById('padrinhoValidateSub').innerText = `Validada em ${t.feitaEm}`;
+            renderChecklist();
+        }
+
+        function openTaskModal(title, text, isCompleted) {
+            showModal(title, text);
+        }
+
+        function showModal(title, text) {
+            const titleEl = document.getElementById('modalTitle');
+            const bodyEl = document.getElementById('modalBody');
+            const overlay = document.getElementById('modalOverlay');
+            if (titleEl) titleEl.innerText = title;
+            if (bodyEl) bodyEl.innerText = text;
+            if (overlay) overlay.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+
+        function triggerCSVExport() {
+            const linhas = state.integrantes.map(i => `${i.nome},${i.funcao},${i.progresso}%,${i.atrasadas},${i.padrinho || 'Sem padrinho'},${i.acesso}`);
+            const csvContent = "data:text/csv;charset=utf-8,Nome,Função,Progresso,Tarefas atrasadas,Padrinho,Último acesso\n" + linhas.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "relatorio_acolhe_mais.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleFaqAnswer(el) {
+            const answer = el.querySelector('.faq-answer');
+            const icon = el.querySelector('.fa-chevron-down');
+            if (answer && icon) {
+                answer.classList.toggle('hidden');
+                icon.style.transform = answer.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        }
+
+        // ========================================================
+        // BUSCA, CENTRAL DE CONTEÚDOS E PERFIL (INTEGRANTE)
+        // ========================================================
+        const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const tipoIcon = { texto: 'fa-file-lines', arquivo: 'fa-file-pdf', link: 'fa-link' };
+        const tipoNome = { texto: 'Texto', arquivo: 'Arquivo', link: 'Link' };
+
+        function goSearch() {
+            switchView('view-faq');
+            setTimeout(() => document.getElementById('faqSearch').focus(), 50);
+        }
+
+        function faqCard(f) {
+            return `<div class="border-2 border-slate-200 rounded-2xl p-4 cursor-pointer hover:border-brand-teal" onclick="toggleFaqAnswer(this)">
+                        <div class="flex justify-between items-center gap-2"><h4 class="font-extrabold text-sm text-slate-800">${f.p}</h4><i class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i></div>
+                        <p class="faq-answer hidden text-xs font-semibold text-slate-600 mt-3 pt-3 border-t border-slate-100 leading-relaxed">${f.r}</p>
+                    </div>`;
+        }
+
+        function renderSearch() {
+            const box = document.getElementById('searchResults');
+            document.getElementById('askBox').classList.toggle('hidden', state.role !== 'voluntario');
+            const q = norm(document.getElementById('faqSearch').value.trim());
+            const publicados = state.conteudos.filter(c => c.publicado);
+            if (!q) {
+                box.innerHTML = state.categorias.map(cat => {
+                    const fs = state.faqs.filter(f => f.cat === cat);
+                    return fs.length ? `<div class="space-y-2"><p class="text-xs font-black text-slate-500">${cat}</p>${fs.map(faqCard).join('')}</div>` : '';
+                }).join('');
+                return;
+            }
+            const conts = publicados.filter(c => norm(c.titulo + ' ' + c.texto).includes(q));
+            const faqs = state.faqs.filter(f => norm(f.p + ' ' + f.r).includes(q));
+            if (!conts.length && !faqs.length) {
+                box.innerHTML = `<div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-600">Nada encontrado para “${document.getElementById('faqSearch').value}”. Tente outra palavra ou veja as perguntas mais comuns:</div>
+                    ${state.faqs.slice(0, 2).map(faqCard).join('')}`;
+                return;
+            }
+            // Resultados agrupados por categoria
+            box.innerHTML = state.categorias.map(cat => {
+                const cs = conts.filter(c => c.cat === cat), fs = faqs.filter(f => f.cat === cat);
+                if (!cs.length && !fs.length) return '';
+                return `<div class="space-y-2"><p class="text-xs font-black text-slate-500">${cat}</p>
+                    ${cs.map(c => `<button onclick="openConteudo(${c.id})" class="w-full text-left border-2 border-teal-200 bg-teal-50 rounded-2xl p-3 flex items-center gap-3"><i class="fa-solid ${tipoIcon[c.tipo]} text-brand-teal"></i><span class="text-sm font-extrabold text-teal-950">${c.titulo}</span></button>`).join('')}
+                    ${fs.map(faqCard).join('')}</div>`;
+            }).join('');
+        }
+
+        function toggleFaqAnswer(el) {
+            const answer = el.querySelector('.faq-answer');
+            const icon = el.querySelector('.fa-chevron-down');
+            if (answer && icon) {
+                answer.classList.toggle('hidden');
+                icon.style.transform = answer.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        }
+
+        function renderConteudos() {
+            const cats = ['Todas', ...state.categorias];
+            document.getElementById('catChips').innerHTML = cats.map(c =>
+                `<button class="chip ${state.catFilter === c ? 'chip-active' : ''}" onclick="state.catFilter='${c}'; renderConteudos()">${c}</button>`).join('');
+            const list = state.conteudos.filter(c => c.publicado && (state.catFilter === 'Todas' || c.cat === state.catFilter));
+            document.getElementById('contentList').innerHTML = list.map(c => `
+                <button onclick="openConteudo(${c.id})" class="w-full text-left border-2 border-slate-200 rounded-2xl p-4 flex items-start gap-3 hover:border-brand-teal">
+                    <div class="w-10 h-10 rounded-xl bg-teal-50 text-brand-teal flex items-center justify-center shrink-0"><i class="fa-solid ${tipoIcon[c.tipo]}"></i></div>
+                    <div class="flex-1">
+                        <p class="text-sm font-extrabold text-slate-800">${c.titulo}</p>
+                        <p class="text-[11px] font-bold text-slate-400">${c.cat} • ${tipoNome[c.tipo]} • atualizado em ${c.data} por ${c.resp}</p>
+                    </div>
+                    ${c.lido ? '<span class="text-[10px] font-black text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full shrink-0">Lido</span>' : ''}
+                </button>`).join('') || '<p class="text-xs font-bold text-slate-400 text-center py-4">Nenhum conteúdo publicado nesta categoria ainda.</p>';
+        }
+
+        function openConteudo(id) {
+            const c = state.conteudos.find(x => x.id === id);
+            if (!c) return;
+            if (id === 2 && state.role === 'voluntario') { openTrailStep(2); return; }
+            if (state.role === 'voluntario') c.lido = true;
+            const acao = c.tipo === 'arquivo' ? '\n\n📄 O arquivo PDF abre em uma nova aba.' : c.tipo === 'link' ? '\n\n🔗 O link externo abre em uma nova aba.' : '';
+            showModal(c.titulo, `${c.texto}${acao}\n\nVersão oficial v${c.versao} • atualizado em ${c.data} por ${c.resp}.`);
+            if (state.currentView === 'view-conteudos') renderConteudos();
+        }
+
+        function renderAcceptedTerms() {
+            const box = document.getElementById('acceptedTermsList');
+            box.innerHTML = state.termos.map(t => `
+                <div class="flex items-center gap-3 p-3 bg-slate-50 border-2 border-slate-200 rounded-2xl">
+                    <i class="fa-solid fa-file-signature text-brand-teal"></i>
+                    <div class="flex-1"><p class="text-xs font-extrabold text-slate-700">${t.nome}</p><p class="text-[10px] font-bold text-slate-400">Aceito em ${state.termsAcceptedAt || '—'} • versão ${t.versao}</p></div>
+                    <button onclick="showModal('Termo em PDF', 'O termo aceito foi gerado em PDF para impressão e assinatura física.')" class="text-[11px] font-black text-brand-teal">PDF</button>
+                </div>`).join('');
+        }
+
+        function toggleReminders() {
+            state.remindersOn = !state.remindersOn;
+            const t = document.getElementById('toggleReminders');
+            t.classList.toggle('on', state.remindersOn);
+            t.setAttribute('aria-checked', state.remindersOn);
+            renderChecklist();
+        }
+
+        function setFont(px) { document.documentElement.style.fontSize = px + 'px'; }
+
+        function installPwa() {
+            document.getElementById('pwaBanner').classList.add('hidden');
+            showModal('Atalho criado', 'O Acolhe+ foi adicionado à tela inicial do celular. As páginas que você já abriu ficam disponíveis mesmo sem internet.');
+        }
+
+        function showPrivacy() {
+            showModal('Política de privacidade', 'A ONG Esperança coleta apenas nome, e-mail, telefone (opcional), vínculo, função e data de início, para organizar sua integração.\n\nOs dados não são compartilhados com terceiros. Você pode pedir a correção ou exclusão a qualquer momento pelo e-mail privacidade@ongesperanca.org.');
+        }
+
+        // ========================================================
+        // PADRINHO: OBSERVAÇÕES E DÚVIDAS QUE VIRAM FAQ
+        // ========================================================
+        function renderObs() {
+            document.getElementById('obsList').innerHTML = state.observacoes.map(o =>
+                `<p class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-2.5"><strong class="text-slate-800">${o.data}:</strong> ${o.texto}</p>`).join('');
+        }
+
+        function addObservation() {
+            const input = document.getElementById('obsInput');
+            const txt = input.value.trim();
+            if (!txt) return;
+            state.observacoes.push({ data: nowText().slice(0, 5), texto: txt });
+            input.value = '';
+            renderObs();
+            playSuccessSound();
+        }
+
+        function messageToFaq(id) {
+            const m = state.messagesList.find(x => x.id === id);
+            if (!m) return;
+            state.faqs.push({ id: Date.now(), cat: 'Processos e rotinas', p: m.text, r: m.reply });
+            m.virouFaq = true;
+            renderPadrinhoMessages();
+            renderCoordFaq();
+            playSuccessSound();
+            showModal('Pergunta frequente criada', 'A dúvida e a resposta agora aparecem para todos em "Dúvidas".');
+        }
+
+        // ========================================================
+        // COORDENAÇÃO: PAINEL, CADASTRO, CONTEÚDOS E TERMOS
+        // ========================================================
+        function setCoordFilter(f, el) {
+            state.coordFilter = f;
+            document.querySelectorAll('.coord-filter').forEach(b => b.classList.remove('chip-active'));
+            el.classList.add('chip-active');
+            renderCoordList();
+        }
+
+        function renderCoordList() {
+            const box = document.getElementById('coordList');
+            if (!box) return;
+            const f = state.coordFilter;
+            const list = state.integrantes.filter(i =>
+                f === 'todos' || (f === 'atraso' && i.atrasadas > 0) || (f === 'inativo' && i.inativo) || i.funcao === f);
+            const atrasadasTotal = state.integrantes.reduce((s, i) => s + i.atrasadas, 0);
+            document.getElementById('kpiAtrasadas').innerText = atrasadasTotal;
+            document.getElementById('kpiAtivos').innerText = state.integrantes.length;
+
+            box.innerHTML = list.map(i => {
+                const alerta = i.inativo || !i.padrinho;
+                const cor = i.progresso >= 100 ? 'bg-brand-teal' : alerta ? 'bg-brand-red' : 'bg-brand-orange';
+                return `
+                <div class="p-3 border-2 ${alerta ? 'border-red-200 bg-red-50' : 'border-slate-200'} rounded-2xl space-y-2">
+                    <div class="flex justify-between items-center gap-2">
+                        <button onclick="openDetalhe(${i.id})" class="font-black text-sm text-slate-800 hover:underline text-left">${i.nome} <span class="text-slate-400 font-bold text-xs">(${i.funcao})</span></button>
+                        <span class="text-xs font-black ${alerta ? 'text-brand-red' : 'text-brand-orange'}">${i.progresso}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden"><div class="${cor} h-full rounded-full transition-all duration-300" style="width:${Math.max(i.progresso, 3)}%"></div></div>
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <p class="text-[11px] font-bold ${alerta ? 'text-red-700' : 'text-slate-400'}">
+                            Padrinho: ${i.padrinho || 'não designado'} • ${i.atrasadas ? `<i class="fa-solid fa-triangle-exclamation"></i> ${i.atrasadas} tarefa atrasada` : 'sem atrasos'} • último acesso ${i.acesso}
+                        </p>
+                        ${i.padrinho ? '' : `<button onclick="openDesignar(${i.id})" class="btn-duo btn-duo-purple py-1 px-2 text-[10px]">DESIGNAR PADRINHO</button>`}
+                    </div>
+                </div>`;
+            }).join('') || '<p class="text-xs font-bold text-slate-400 text-center py-4">Ninguém nesta situação.</p>';
+        }
+
+        function openDetalhe(id) {
+            const i = state.integrantes.find(x => x.id === id);
+            if (id === 1) {
+                const t = state.tarefas.map(x => `• ${x.titulo}: ${x.status === 'concluida' ? 'concluída' : x.status === 'atrasada' ? 'ATRASADA' : x.status === 'validacao' ? 'aguardando validação' : 'pendente'}`).join('\n');
+                const lidos = state.conteudos.filter(c => c.lido).length;
+                showModal(i.nome, `${i.vinculo} • ${i.funcao} • padrinho ${i.padrinho}\n\nEtapas: Conhecendo a ONG ✓ • Regras e conduta ${state.step2Completed ? '✓' : '(em andamento)'} • Tarefas de chegada ${state.step3Completed ? '✓' : '(bloqueada)'}\nConteúdos lidos: ${lidos} de ${state.conteudos.filter(c => c.publicado).length}\n\nTarefas:\n${t}\n\nObservações do padrinho:\n${state.observacoes.map(o => '• ' + o.data + ': ' + o.texto).join('\n')}`);
+            } else {
+                showModal(i.nome, `${i.vinculo} • ${i.funcao}\nPadrinho: ${i.padrinho || 'não designado'}\nProgresso: ${i.progresso}% • último acesso ${i.acesso}\n\n${i.inativo ? 'Sem acesso há mais de 7 dias. Vale entrar em contato.' : 'Integração dentro do esperado.'}`);
+            }
+        }
+
+        function closeOverlay(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function openDesignar(id) {
+            state.padrinhoTarget = id;
+            const i = state.integrantes.find(x => x.id === id);
+            document.getElementById('padrinhoModalText').innerText = `Quem vai acompanhar ${i.nome}? O limite é de 3 apadrinhados por padrinho.`;
+            document.getElementById('modalPadrinhoOverlay').classList.remove('hidden');
+        }
+
+        function savePadrinho() {
+            const i = state.integrantes.find(x => x.id === state.padrinhoTarget);
+            i.padrinho = document.getElementById('selPadrinho').value;
+            closeOverlay('modalPadrinhoOverlay');
+            renderCoordList();
+            playSuccessSound();
+            showModal('Padrinho designado', `${i.padrinho} vai acompanhar ${i.nome}. Os dois receberam um aviso por e-mail.`);
+        }
+
+        function openCadastroModal() { document.getElementById('modalCadastroOverlay').classList.remove('hidden'); }
+
+        function saveCadastro() {
+            const nome = document.getElementById('cadNome').value.trim();
+            const email = document.getElementById('cadEmail').value.trim();
+            if (!nome || !email) { showModal('Faltam dados', 'Informe pelo menos o nome e o e-mail.'); return; }
+            const padrinho = document.getElementById('cadPadrinho').value.split(' (')[0];
+            state.integrantes.push({ id: Date.now(), nome, funcao: document.getElementById('cadFuncao').value, vinculo: document.getElementById('cadVinculo').value, padrinho, progresso: 0, atrasadas: 0, acesso: 'ainda não acessou', inativo: false });
+            closeOverlay('modalCadastroOverlay');
+            renderCoordList();
+            playSuccessSound();
+            showModal('Convite enviado', `${nome} recebeu em ${email} o link para criar a senha (válido por 48 horas).\nA trilha "${document.getElementById('cadFuncao').value}" foi associada e ${padrinho} foi avisado da designação.`);
+        }
+
+        function renderCoordConteudos() {
+            const box = document.getElementById('coordContentList');
+            if (!box) return;
+            box.innerHTML = state.conteudos.map(c => `
+                <div class="p-3 border-2 border-slate-200 rounded-2xl space-y-2">
+                    <div class="flex justify-between items-start gap-2">
+                        <div>
+                            <p class="text-sm font-extrabold text-slate-800"><i class="fa-solid ${tipoIcon[c.tipo]} text-brand-teal mr-1"></i> ${c.titulo}</p>
+                            <p class="text-[11px] font-bold text-slate-400">${c.cat} • v${c.versao} • ${c.data} • ${c.resp}</p>
+                        </div>
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${c.publicado ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-900'}">${c.publicado ? 'Publicado' : 'Rascunho'}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="togglePublicar(${c.id})" class="btn-duo btn-duo-white py-1 px-2 text-[10px]">${c.publicado ? 'DESPUBLICAR' : 'PUBLICAR'}</button>
+                        ${c.id === 2 ? '<button onclick="openEditStepModal()" class="btn-duo btn-duo-white py-1 px-2 text-[10px]">EDITAR</button>' : ''}
+                        <button onclick="showHistorico(${c.id})" class="btn-duo btn-duo-white py-1 px-2 text-[10px]">HISTÓRICO</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function togglePublicar(id) {
+            const c = state.conteudos.find(x => x.id === id);
+            c.publicado = !c.publicado;
+            renderCoordConteudos();
+            showModal(c.publicado ? 'Conteúdo publicado' : 'Conteúdo despublicado', c.publicado ? `"${c.titulo}" já aparece para os integrantes.` : `"${c.titulo}" saiu da Central e da busca dos integrantes.`);
+        }
+
+        function showHistorico(id) {
+            const c = state.conteudos.find(x => x.id === id);
+            let linhas;
+            if (id === 2) linhas = [`v${state.stepVersion} (oficial) • ${state.stepUpdated} • Gustavo Mota`, ...state.stepHistory.filter(h => h.v > 0).map(h => `v${h.v} • ${h.data} • ${h.autor} • "${h.titulo}"`)];
+            else linhas = Array.from({ length: c.versao }, (_, k) => `v${c.versao - k}${k === 0 ? ' (oficial)' : ''} • ${k === 0 ? c.data : 'versão anterior'} • ${c.resp}`);
+            showModal('Histórico de versões', `${c.titulo}\n\n${linhas.join('\n')}\n\nSó coordenadores e administradores veem o histórico.`);
+        }
+
+        function fillCatSelect(id) {
+            document.getElementById(id).innerHTML = state.categorias.map(c => `<option>${c}</option>`).join('');
+        }
+
+        function openNovoConteudo() { fillCatSelect('contCategoria'); document.getElementById('modalConteudoOverlay').classList.remove('hidden'); }
+
+        function saveConteudo() {
+            const titulo = document.getElementById('contTitulo').value.trim();
+            if (!titulo) return;
+            state.conteudos.push({ id: Date.now(), titulo, cat: document.getElementById('contCategoria').value, tipo: document.getElementById('contTipo').value, resp: 'Gustavo Mota', data: nowText().slice(0, 10), versao: 1, publicado: false, lido: false, texto: 'Conteúdo novo cadastrado pela coordenação.' });
+            closeOverlay('modalConteudoOverlay');
+            renderCoordConteudos();
+            playSuccessSound();
+            showModal('Rascunho salvo', `"${titulo}" foi salvo como rascunho. Toque em Publicar para liberar aos integrantes.`);
+        }
+
+        function renderCoordFaq() {
+            const box = document.getElementById('coordFaqList');
+            if (!box) return;
+            box.innerHTML = state.faqs.map(f => `<div class="p-3 border-2 border-slate-200 rounded-2xl"><p class="text-xs font-extrabold text-slate-800">${f.p}</p><p class="text-[11px] font-bold text-slate-400">${f.cat}</p></div>`).join('');
+        }
+
+        function openNovaFaq() { fillCatSelect('faqCategoria'); document.getElementById('modalFaqOverlay').classList.remove('hidden'); }
+
+        function saveFaq() {
+            const p = document.getElementById('faqPergunta').value.trim(), r = document.getElementById('faqResposta').value.trim();
+            if (!p || !r) return;
+            state.faqs.push({ id: Date.now(), cat: document.getElementById('faqCategoria').value, p, r });
+            closeOverlay('modalFaqOverlay');
+            renderCoordFaq();
+            playSuccessSound();
+            showModal('Pergunta publicada', 'Ela já aparece na busca e na lista de dúvidas dos integrantes.');
+        }
+
+        function renderCoordTermos() {
+            const box = document.getElementById('coordTermsList');
+            if (!box) return;
+            const total = state.integrantes.length;
+            box.innerHTML = state.termos.map(t => `
+                <div class="p-3 border-2 border-slate-200 rounded-2xl flex items-center gap-3">
+                    <i class="fa-solid fa-file-signature text-brand-teal text-lg"></i>
+                    <div class="flex-1"><p class="text-sm font-extrabold text-slate-800">${t.nome}</p><p class="text-[11px] font-bold text-slate-400">Obrigatório • versão ${t.versao} • ${t.aceites} de ${total} aceitaram</p></div>
+                    <button onclick="publicarVersao(${t.id})" class="btn-duo btn-duo-white py-1 px-2 text-[10px] shrink-0">NOVA VERSÃO</button>
+                </div>`).join('');
+            document.getElementById('aceitesBody').innerHTML = state.aceites.map(a => `
+                <tr class="border-b border-slate-100"><td class="py-2 pr-3 text-slate-800">${a.nome}</td><td class="py-2 pr-3">${a.data}</td><td class="py-2 pr-3">${a.ip}</td><td class="py-2 pr-3">${a.versao}</td>
+                <td class="py-2"><button onclick="showModal('Termo em PDF', 'Termo aceito por ${a.nome} gerado em PDF para arquivo ou assinatura física.')" class="text-brand-teal font-black">PDF</button></td></tr>`).join('');
+        }
+
+        function publicarVersao(id) {
+            const t = state.termos.find(x => x.id === id);
+            const [maj] = t.versao.split('.');
+            t.versao = `${parseInt(maj) + 1}.0`;
+            t.aceites = 0;
+            renderCoordTermos();
+            playSuccessSound();
+            showModal('Nova versão publicada', `"${t.nome}" está agora na versão ${t.versao}. Todos os integrantes vão precisar aceitar de novo no próximo acesso.`);
+        }
+
+        window.onload = function() {
+            renderTrilhas();
+            renderGrupos();
+            renderPadrinhoMessages();
+            renderVolunteerChat();
+            updateVolunteerTrailView();
+            renderChecklist();
+            renderObs();
+            renderCoordList();
+            renderCoordConteudos();
+            renderCoordFaq();
+            renderCoordTermos();
+            switchView('view-login');
+        };
+    </script>
+</body>
+</html>
